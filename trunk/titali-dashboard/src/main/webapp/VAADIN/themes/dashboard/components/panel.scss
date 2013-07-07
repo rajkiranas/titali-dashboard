@@ -1,0 +1,142 @@
+@import url(../runo/styles.css);
+
+@mixin dashboard-panel{
+
+.v-panel, .v-panel-caption, .v-panel-content, .v-panel-deco, .v-panel-light, .v-panel-caption-light, .v-panel-content-light, .v-panel-deco-light {
+    outline: medium none;
+    text-align: left;
+}
+.v-panel-caption .v-errorindicator {
+    display: inline;
+    float: none;
+}
+.v-panel-caption .v-icon {
+    display: inline;
+    vertical-align: middle;
+}
+.v-panel-caption span {
+    vertical-align: middle;
+}
+.v-panel-caption {
+    font-weight: bold;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.v-panel-nocaption {
+    overflow: hidden;
+}
+.v-panel-content {
+    overflow: auto;
+}
+.v-panel-deco {
+}
+
+
+    .v-panel {
+    background: url("panel/img/top-left.png") no-repeat scroll 0 0 transparent;
+}
+.v-panel-caption .v-errorindicator {
+    background: url("icons/16/error.png") no-repeat scroll center bottom transparent;
+    padding-right: 20px;
+}
+.v-panel-caption, .v-panel-caption-light {
+    background: url("panel/img/top-right.png") no-repeat scroll right top transparent;
+    color: #F14C1A;
+    font-size: 18px;
+    font-weight: normal;
+    height: 18px;
+    letter-spacing: -0.03em;
+    line-height: normal;
+  border:1px solid #999999;
+    padding: 13px 18px 16px 8px;
+    text-overflow: ellipsis;
+}
+.v-panel-nocaption {
+    background: url("panel/img/top-right.png") no-repeat scroll right top transparent;
+    height: 9px;
+    margin-left: 10px;
+}
+.v-panel-content {
+    -moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #FFFFFF;
+    border-color: #BABFC0 #BABFC0 #DEE2E3;
+    border-style: solid;
+    border-width: 1px;
+}
+.v-panel-deco {
+    background: url("panel/img/bottom-right.png") repeat-x scroll right top transparent;
+    height: 9px;
+    margin-left: 9px;
+}
+.v-panel-deco:before {
+    background: url("panel/img/bottom-left.png") no-repeat scroll 0 0 transparent;
+    content: "";
+    display: block;
+    height: 9px;
+    margin-left: -9px;
+    width: 9px;
+}
+.v-panel-light, .v-panel-caption-light {
+    background: none repeat scroll 0 0 transparent;
+}
+.v-panel-caption-light {
+    border-bottom: 1px solid #BABFC0;
+    margin: 0;
+    padding-left: 18px;
+}
+.v-panel-nocaption-light {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+    height: 0;
+    margin: 0;
+}
+.v-panel-content-light {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+}
+.v-panel-deco-light {
+    height: 0;
+    overflow: hidden;
+}
+.v-ie6 .v-panel {
+    background: none repeat scroll 0 0 transparent;
+}
+.v-ie6 .v-panel-caption {
+    -moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-color: #BABFC0 #BABFC0 -moz-use-text-color;
+    border-style: solid solid none;
+    border-width: 1px 1px medium;
+    margin: 0;
+    padding-left: 18px;
+}
+.v-ie6 .v-panel-nocaption {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+    height: 0;
+    margin: 0;
+}
+.v-ie6 .v-panel-caption-light {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+}
+.v-ie6 .v-panel-content, .v-ie7 .v-panel-content, .v-ie8 .v-panel-content {
+    border-bottom: 1px solid #BABFC0;
+}
+.v-ie6 .v-panel-content-light, .v-ie7 .v-panel-content-light, .v-ie8 .v-panel-content-light {
+    border-bottom: medium none;
+}
+.v-ie6 .v-panel-deco, .v-ie7 .v-panel-deco, .v-ie8 .v-panel-deco {
+    height: 0;
+    overflow: hidden;
+}
+
+}
