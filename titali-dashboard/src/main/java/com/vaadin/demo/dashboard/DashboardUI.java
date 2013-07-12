@@ -71,7 +71,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 @Theme("dashboard")
-@Title("QuickTickets Dashboard")
+@Title("Titali Dashboard")
 public class DashboardUI extends UI{
 
     DataProvider dataProvider = new DataProvider();
@@ -88,13 +88,13 @@ public class DashboardUI extends UI{
     HashMap<String, Class<? extends View>> routes = new HashMap<String, Class<? extends View>>() {
         {
             put("/dashboard", DashboardView.class);
-            put("/sales", StudQuickLearn.class);
-            put("/transactions", TransactionsView.class);
-            put("/reports", ReportsView.class);
-            put("/schedule", ScheduleView.class);
+            put("/learn", StudQuickLearn.class);
+            //put("/transactions", TransactionsView.class);
+            //put("/reports", ReportsView.class);
+            //put("/schedule", ScheduleView.class);
             put("/student",StudentView.class);
             put("/teacher",TeacherView.class);
-            put("/quickUpload",QuickUpload.class);
+            put("/upload",QuickUpload.class);
             put("/MyExam",StudentExam.class);
         }
     };
@@ -367,8 +367,10 @@ public class DashboardUI extends UI{
 
         menu.removeAllComponents();
 
-        for (final String view : new String[] { "dashboard", "sales",
-                "transactions", "reports", "schedule","student","teacher","quickUpload","MyExam" }) {
+        /*for (final String view : new String[] { "dashboard", "learn",
+                "transactions", "reports", "schedule","student","teacher","upload","MyExam" }) {*/
+        for (final String view : new String[] { "dashboard", "learn",
+                "student","teacher","upload","MyExam" }) {
             
             Button b = new NativeButton(view.substring(0, 1).toUpperCase()
                     + view.substring(1).replace('-', ' '));

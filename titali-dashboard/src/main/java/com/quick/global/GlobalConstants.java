@@ -46,11 +46,18 @@ public class GlobalConstants
     public static final String ISUSERNAMEEXIST="isUsernameExist";
     public static final String QUICKLEARNLIST = "quickLearnList";
     public static final String STDSUBLIST = "stdsub";
-    public static String STATUS = "Status";
+    public static final String STATUS = "Status";
     public static final String MYQUICKNOTEs="quicknotes";
     public static final String subjectList = "subjectList";
     public static final String divisionList = "divisionList";
     public static final String teacherStdDivSubIdList = "teacherStdDivSubIdList";
+    public static final String Quick_Upload = "Quick Upload";
+    public static final String Save = "Save";
+    public static final String Cancel = "Cancel";
+    public static final String toolbar_style = "toolbar";
+    public static final String h1_style = "h1";
+    public static final String default_style = "default";
+    
     
     
      // == exam ============
@@ -62,6 +69,8 @@ public class GlobalConstants
     //===========URL FOR SERVICES===========
    public static final String DASHBOARD_URL="DASHBOARD_URL";
    public static final String LOGIN_URL="LOGIN_URL";
+   public static final String STANDARD_LISTING_URL="STANDARD_LISTING_URL";
+   public static final String QUICK_LEARN_UPLOAD_LIST_URL="QUICK_LEARN_UPLOAD_LIST_URL";
     
     static
     {

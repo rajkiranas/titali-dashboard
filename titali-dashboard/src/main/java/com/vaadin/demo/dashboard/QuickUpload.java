@@ -27,6 +27,7 @@ import com.quick.ui.QuickLearn.PreviousQuestion;
 import com.quick.ui.QuickUpload.QuickUploadNotes;
 import com.quick.ui.QuickUpload.QuickUploadOtherNotes;
 import com.quick.ui.QuickUpload.QuickUploadPreviousQuestion;
+import com.quick.utilities.UIUtils;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
@@ -57,7 +58,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     private TextField topicTagstxt;
     private Button savebtn;
     private Button cancelbtn;
-    private boolean isNewQuickUpload=false;
+    private boolean isNewQuickUpload;
     private int uploadId =0;
     private String notes;
     private String otherNotes;
@@ -68,7 +69,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         setSizeFull();
-        addStyleName("schedule");        
+        addStyleName("schedule");
     }
     
     
@@ -91,50 +92,38 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     
     public QuickUpload(){
         isNewQuickUpload=true;
+        
+        buildTopRowLayout();
+        
         setStandardList(MasterDataProvider.getStandardList());
         setUploadedList(MasterDataProvider.getQuickLearnUploadList());
-        
-        HorizontalLayout top = new HorizontalLayout();
-        top.setWidth("100%");
-        top.setSpacing(true);
-        top.addStyleName("toolbar");
-        addComponent(top);
-        final Label title = new Label("Quick Upload");
-        title.setSizeUndefined();
-        title.addStyleName("h1");
-        top.addComponent(title);
-        top.setComponentAlignment(title, Alignment.MIDDLE_LEFT);
-        top.setExpandRatio(title, 1);
-        
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setMargin(true);
-        buttons.setSpacing(true);
-        buttons.setSizeUndefined();
-
-        savebtn = new Button("Save",(Button.ClickListener)this);
-        savebtn.addStyleName("default");
-        buttons.addComponent(savebtn);
-
-        cancelbtn = new Button("Cancel",(Button.ClickListener)this);
-        cancelbtn.setImmediate(true);  
-        cancelbtn.addStyleName("default");
-        buttons.addComponent(cancelbtn);        
        
-        top.addComponent(buttons);
-        top.setComponentAlignment(buttons, Alignment.TOP_RIGHT); 
-        
         HorizontalLayout row = new HorizontalLayout();
         row.setSizeFull();
         row.setMargin(new MarginInfo(true, true, false, true));
         row.setSpacing(true);
         addComponent(row);
-        setExpandRatio(row, 1.5f);      
-       
-        row.addComponent(CreateFirstPaneview());        
-        row.addComponent(buildTabSheetLayout());    
+        setExpandRatio(row, 1.5f);
+        
+        row.addComponent(UIUtils.createPanel(buildStdSubTopicPaneview()));
+        row.addComponent(UIUtils.createPanel(buildUploadedItemsTableLayout()));
+        //Table t =new Table();
+        //column.addComponent(UIUtils.createPanel(t));
+        
+        /* column = new HorizontalLayout();
+        column.setMargin(true);
+        column.setSizeFull();
+        column.setSpacing(true);
+        addComponent(column);
+        setExpandRatio(column, 2); */
+        
+        row.addComponent(UIUtils.createPanel(buildVideoNotesTabSheet()));
+        
+        //row.addComponent(buildStdSubTopicPaneview());
+        //row.addComponent(buildVideoNotesTabSheet());
     }
     
-    private Component CreateFirstPaneview() {
+    private Component buildStdSubTopicPaneview() {
         VerticalLayout mainVertical=new VerticalLayout();
 //        ver.setWidth("100px");
 //        ver.setHeight("300px");
@@ -207,17 +196,23 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         basehorlytfirst.addComponent(secondVerticalyt);
         mainVertical.addComponent(basehorlytfirst);      
         
+        
+       
+        return mainVertical;
+    }
+    private VerticalLayout buildUploadedItemsTableLayout()
+    {
+        VerticalLayout mainVertical=new VerticalLayout();
         HorizontalLayout tableView = new HorizontalLayout();
         tableView.setSpacing(true);
         tableView.setWidth("100px");
         tableView.setHeight("200px");
         tableView.addComponent(buildQuickUplaodTable());
-        mainVertical.addComponent(tableView);      
-       
+        mainVertical.addComponent(tableView);
         return mainVertical;
     }
     
-    private TabSheet buildTabSheetLayout() {
+    private TabSheet buildVideoNotesTabSheet() {
            editors = new TabSheet();
            editors.setSizeFull();
            editors.addTab(new DashBoardVideoPlayer(),"Video");
@@ -421,10 +416,36 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
            topicTagstxt.setValue(quickLearn.getTopicTags());
         }
     }
-   
-   
-    
 
-    
+    private void buildTopRowLayout() 
+    {
+        HorizontalLayout top = new HorizontalLayout();
+        top.setWidth("100%");
+        top.setSpacing(true);
+        top.addStyleName(GlobalConstants.toolbar_style);
+        addComponent(top);
+        final Label title = new Label(GlobalConstants.Quick_Upload);
+        title.setSizeUndefined();
+        title.addStyleName(GlobalConstants.h1_style);
+        top.addComponent(title);
+        top.setComponentAlignment(title, Alignment.MIDDLE_LEFT);
+        top.setExpandRatio(title, 1);
+        
+        HorizontalLayout buttons = new HorizontalLayout();
+        buttons.setMargin(true);
+        buttons.setSpacing(true);
+        buttons.setSizeUndefined();
 
+        savebtn = new Button(GlobalConstants.Save,(Button.ClickListener)this);
+        savebtn.addStyleName(GlobalConstants.default_style);
+        buttons.addComponent(savebtn);
+
+        cancelbtn = new Button(GlobalConstants.Cancel,(Button.ClickListener)this);
+        cancelbtn.setImmediate(true);  
+        cancelbtn.addStyleName(GlobalConstants.default_style);
+        buttons.addComponent(cancelbtn);        
+       
+        top.addComponent(buttons);
+        top.setComponentAlignment(buttons, Alignment.TOP_RIGHT); 
+    }
 }
