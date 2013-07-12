@@ -37,7 +37,7 @@ public class MasterDataProvider {
          List<Std> standardList = null;
         try {
             Client client = Client.create();
-            WebResource webResource = client.resource("http://localhost:8084/titali/rest/MasterParam/standardList");
+            WebResource webResource = client.resource(GlobalConstants.getProperty(GlobalConstants.STANDARD_LISTING_URL));
             //String input = "{\"userName\":\"raj\",\"password\":\"FadeToBlack\"}";
             JSONObject inputJson = new JSONObject();
             
@@ -182,7 +182,7 @@ public class MasterDataProvider {
         List<MasteParmBean> uploadList = null;
         try {
             Client client = Client.create();
-            WebResource webResource = client.resource("http://localhost:8084/titali/rest/QuickMaster/getQuickLearnUploadList");
+            WebResource webResource = client.resource(GlobalConstants.getProperty(GlobalConstants.QUICK_LEARN_UPLOAD_LIST_URL));
             //String input = "{\"userName\":\"raj\",\"password\":\"FadeToBlack\"}";
             JSONObject inputJson = new JSONObject();
             
