@@ -20,13 +20,13 @@ import java.util.logging.Logger;
 public class QuickUploadMasterContainer extends BeanItemContainer<MasteParmBean> implements Serializable {
     
     public static final Object[] NATURAL_COL_ORDER_QUICKUPLOAD_INFO = new Object[]{
-      "uploadId","uploadDate","std","div","sub","topic"};
+      "uploadDate","std","sub","topic"};
     /**
      * "Human readable" captions for properties in same order as in
      * NATURAL_COL_ORDER_DAILY_CALLS.
      */
     public static final String[] COL_HEADERS_ENGLISH_QUICKUPLOAD_INFO = new String[]{
-      "Upload Id","Upload Date","Standard","Division","Subject","Topic"};
+      "Upload Date","Standard","Subject","Topic"};
 
        
    public QuickUploadMasterContainer() throws InstantiationException,

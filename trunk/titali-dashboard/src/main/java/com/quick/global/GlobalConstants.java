@@ -10,6 +10,7 @@ import java.util.Properties;
 public class GlobalConstants
 {
     
+    
 
     /** Creates a new instance of EQ_GlobalConstants */
     public GlobalConstants() {
@@ -51,7 +52,8 @@ public class GlobalConstants
     public static final String subjectList = "subjectList";
     public static final String divisionList = "divisionList";
     public static final String teacherStdDivSubIdList = "teacherStdDivSubIdList";
-    public static final String Quick_Upload = "Quick Upload";
+    public static final String Upload_Topics = "Upload Topics";
+    public static final String New="New";
     public static final String Save = "Save";
     public static final String Cancel = "Cancel";
     public static final String toolbar_style = "toolbar";
@@ -71,6 +73,7 @@ public class GlobalConstants
    public static final String LOGIN_URL="LOGIN_URL";
    public static final String STANDARD_LISTING_URL="STANDARD_LISTING_URL";
    public static final String QUICK_LEARN_UPLOAD_LIST_URL="QUICK_LEARN_UPLOAD_LIST_URL";
+   public static final String SAVE_UPLOAD_DETAILS_URL="SAVE_UPLOAD_DETAILS_URL";
     
     static
     {
@@ -96,7 +99,7 @@ public class GlobalConstants
     }
 
     private static void loadProperties() throws IOException {
-            PropertyLoader PL = new PropertyLoader();
+            GlobalConstants.PropertyLoader PL = new GlobalConstants.PropertyLoader();
             InputStream inputStream = PL.getProperty();
             if (inputStream != null) {
                 properties.load(inputStream);

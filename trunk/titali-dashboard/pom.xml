@@ -16,7 +16,7 @@
 	<repositories>
 		<repository>
 			<id>vaadin-addons</id>
-			<url>http://maven.vAaadin.com/vaadin-addons</url>
+			<url>http://maven.vaadin.com/vaadin-addons</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>

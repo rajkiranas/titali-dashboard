@@ -13,25 +13,30 @@ import com.vaadin.ui.Table;
  *
  * @author Sonali Sangle
  */
-public class QuickUploadTable extends Table{   
-    
+public class QuickUploadTable extends Table {
+
     private QuickUpload quickUpload;
-    
+
     public QuickUploadTable(QuickUpload quickUpload) {
-        this.quickUpload=quickUpload;
-        
+        this.quickUpload = quickUpload;
+
+        //setCaption("Uploaded topics");
+        //addStyleName("plain");
         addStyleName("borderless");
-        setSortEnabled(false);
+        setSortEnabled(true);
         setWidth("100%");
         setPageLength(10);
-        setSelectable(true);
         setMultiSelect(true);
         setImmediate(true); // react at once when something is selected
-        setContainerDataSource(quickUpload.getQuickUploadMasterContainer()); 
+        setContainerDataSource(quickUpload.getQuickUploadMasterContainer());
         setVisibleColumns(QuickUploadMasterContainer.NATURAL_COL_ORDER_QUICKUPLOAD_INFO);
         setColumnHeaders(QuickUploadMasterContainer.COL_HEADERS_ENGLISH_QUICKUPLOAD_INFO);
-        addValueChangeListener((Property.ValueChangeListener)quickUpload);
-    }
 
-    
+        setSelectable(true);
+
+        addValueChangeListener((Property.ValueChangeListener) quickUpload);
+
+        setValue(firstItemId());
+
+    }
 }

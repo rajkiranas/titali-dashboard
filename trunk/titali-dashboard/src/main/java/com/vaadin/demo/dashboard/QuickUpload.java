@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.quick.bean.MasteParmBean;
 import com.quick.bean.QuickLearn;
+import com.quick.bean.Userprofile;
 import com.quick.container.StudQuickLearnContainer;
 import com.quick.data.MasterDataProvider;
 import com.quick.entity.Std;
@@ -57,6 +58,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     private TextField topictxt;
     private TextField topicTagstxt;
     private Button savebtn;
+    private Button newbtn;
     private Button cancelbtn;
     private boolean isNewQuickUpload;
     private int uploadId =0;
@@ -65,11 +67,13 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     private String previousQuestions;
     private QuickUploadTable quickUploadTable;
     MasteParmBean QuikLearnDetails;
+    Userprofile loggedInProfile;
     
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         setSizeFull();
         addStyleName("schedule");
+        loggedInProfile=(Userprofile)getSession().getAttribute(GlobalConstants.CurrentUserProfile);
     }
     
     
@@ -93,7 +97,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     public QuickUpload(){
         isNewQuickUpload=true;
         
-        buildTopRowLayout();
+        buildTopHorizontalRowLayout();
         
         setStandardList(MasterDataProvider.getStandardList());
         setUploadedList(MasterDataProvider.getQuickLearnUploadList());
@@ -103,37 +107,62 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         row.setMargin(new MarginInfo(true, true, false, true));
         row.setSpacing(true);
         addComponent(row);
-        setExpandRatio(row, 1.5f);
-        
-        row.addComponent(UIUtils.createPanel(buildStdSubTopicPaneview()));
-        row.addComponent(UIUtils.createPanel(buildUploadedItemsTableLayout()));
-        //Table t =new Table();
-        //column.addComponent(UIUtils.createPanel(t));
-        
-        /* column = new HorizontalLayout();
-        column.setMargin(true);
-        column.setSizeFull();
-        column.setSpacing(true);
-        addComponent(column);
-        setExpandRatio(column, 2); */
-        
-        row.addComponent(UIUtils.createPanel(buildVideoNotesTabSheet()));
-        
-        //row.addComponent(buildStdSubTopicPaneview());
-        //row.addComponent(buildVideoNotesTabSheet());
+        setExpandRatio(row, 1.5f);      
+       
+        row.addComponent(UIUtils.createPanel(buildUploadedTopicsTableLayout()));
+        row.addComponent(UIUtils.createPanel(buildTabSheetLayout()));
     }
     
-    private Component buildStdSubTopicPaneview() {
+    /* private Component buildStdSubTopicPaneview() {
         VerticalLayout mainVertical=new VerticalLayout();
 //        ver.setWidth("100px");
 //        ver.setHeight("300px");
         
-        HorizontalLayout basehorlytfirst = new HorizontalLayout();
-        basehorlytfirst.setSpacing(true);
+        HorizontalLayout tableView = new HorizontalLayout();
+        tableView.setSpacing(true);
+        tableView.setWidth("100%");
+        tableView.setHeight("100%");
+        tableView.addComponent(buildQuickUplaodTable());
+        mainVertical.addComponent(tableView);      
+       
+        return mainVertical;
+    } */
+    
+    private VerticalLayout buildTabSheetLayout() {
+        VerticalLayout mainVertical=new VerticalLayout();
+        
+           editors = new TabSheet();
+           editors.setSizeFull();
+           editors.addTab(new DashBoardVideoPlayer(),"Video");
+           editors.addTab(new QuickUploadNotes(this), "Notes");
+           editors.addTab(new QuickUploadOtherNotes(this), "Other Notes");
+           editors.addTab(new QuickUploadPreviousQuestion(this), "Previous Questions");
+           CssLayout cssTabsheetLayout = UIUtils.createPanel(editors);
+           
+           mainVertical.addComponent(cssTabsheetLayout);
+           mainVertical.setExpandRatio(cssTabsheetLayout, 2);
+           mainVertical.setWidth("100%");
+           mainVertical.setHeight("97%");
+           
+           CssLayout aboutLearnLayout =  UIUtils.createPanel(buildTopicDetailsLayout(false));
+           aboutLearnLayout.setCaption("Topic Information");
+           
+           mainVertical.addComponent(aboutLearnLayout);
+           mainVertical.setExpandRatio(aboutLearnLayout, 1);
+           return mainVertical;
+    }
+
+     private HorizontalLayout topicInformationLayout = new HorizontalLayout();     
+               
+    private HorizontalLayout buildTopicDetailsLayout(boolean visibility)
+    {
+        
+        topicInformationLayout.setSpacing(true);
+        topicInformationLayout.setSizeFull();
         
         VerticalLayout baseLayout=new VerticalLayout();
         baseLayout.setSpacing(true);
-        
+
         subjecttxt = new ComboBox();
         subjecttxt.setInputPrompt("Subject");
         subjecttxt.setNullSelectionAllowed(false);
@@ -158,9 +187,9 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                     String std=String.valueOf(standardtxt.getValue());
                     setSubjectList(MasterDataProvider.getSubjectBystd(std));
                     if(!getSubjectList().isEmpty()){
-                         Iterator subit=getSubjectList().iterator();
-                         while(subit.hasNext()){
-                         QuickLearn s=(QuickLearn) subit.next();
+                         Iterator subItr=getSubjectList().iterator();
+                         while(subItr.hasNext()){
+                         QuickLearn s=(QuickLearn) subItr.next();
                          subjecttxt.addItem(s.getSub());            
                        }  
                     }     
@@ -180,7 +209,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         baseLayout.addComponent(topictxt);
         baseLayout.setExpandRatio(topictxt, 1);
         
-        basehorlytfirst.addComponent(baseLayout);
+        topicInformationLayout.addComponent(baseLayout);
         
         VerticalLayout secondVerticalyt=new VerticalLayout();
         secondVerticalyt.setSpacing(true);
@@ -193,22 +222,19 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         secondVerticalyt.addComponent(topicTagstxt);
         secondVerticalyt.setExpandRatio(topicTagstxt, 1);        
         
-        basehorlytfirst.addComponent(secondVerticalyt);
-        mainVertical.addComponent(basehorlytfirst);      
-        
-        
-       
-        return mainVertical;
+        topicInformationLayout.addComponent(secondVerticalyt);
+        topicInformationLayout.setVisible(visibility);
+        return topicInformationLayout;
     }
-    private VerticalLayout buildUploadedItemsTableLayout()
+       private VerticalLayout buildUploadedTopicsTableLayout()
     {
         VerticalLayout mainVertical=new VerticalLayout();
-        HorizontalLayout tableView = new HorizontalLayout();
-        tableView.setSpacing(true);
-        tableView.setWidth("100px");
-        tableView.setHeight("200px");
-        tableView.addComponent(buildQuickUplaodTable());
-        mainVertical.addComponent(tableView);
+        //HorizontalLayout tableView = new HorizontalLayout();
+        mainVertical.setSpacing(true);
+        mainVertical.setWidth("100%");
+        mainVertical.setHeight("97%");
+        mainVertical.addComponent(buildQuickUplaodTable());
+        //mainVertical.addComponent(tableView);
         return mainVertical;
     }
     
@@ -238,26 +264,39 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
 
     @Override
     public void buttonClick(ClickEvent event) {
-       final Button source=event.getButton();
-        if(source==savebtn){
-                try{
-                   saveQuickUploadDetails();                  
-                   Notification.show("Saved",Notification.Type.WARNING_MESSAGE);
-                   updateQuickUploadTable();
-                }catch(Exception ex){
-                  ex.printStackTrace();  
-                }               
-        }else if(source == cancelbtn){
-              
+        final Button source = event.getButton();
+        if (source == newbtn) {
+            newbtn.setVisible(false);
+            savebtn.setVisible(true);
+            cancelbtn.setVisible(true);
+            buildTopicDetailsLayout(true);
+            
+        } else if (source == savebtn) {
+            try {
+                newbtn.setVisible(true);
+                savebtn.setVisible(false);
+                cancelbtn.setVisible(false);
+
+                saveQuickUploadDetails();
+                Notification.show("Saved successfully", Notification.Type.WARNING_MESSAGE);
+                updateQuickUploadTable();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else if (source == cancelbtn) {
+            newbtn.setVisible(true);
+            savebtn.setVisible(false);
+            cancelbtn.setVisible(false);
+            topicInformationLayout.setVisible(false);
         }
     }
 
     private void saveQuickUploadDetails() {
         Client client=Client.create();
-        WebResource webResource = client.resource("http://localhost:8084/titali/rest/QuickLearn/saveQuickUploadDetails");
+        WebResource webResource = client.resource(GlobalConstants.getProperty(GlobalConstants.SAVE_UPLOAD_DETAILS_URL));
         JSONObject inputJson=new JSONObject();
         try{   
-           String uploadedBy=getSession().getAttribute("UserName").toString();
+           String uploadedBy=loggedInProfile.getName();
            inputJson.put("uploadedBy", uploadedBy);  
            inputJson.put("std", standardtxt.getValue());  
            inputJson.put("sub", subjecttxt.getValue());
@@ -333,6 +372,8 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
       quickUploadTable.setContainerDataSource(QuickUploadMasterContainer.getQuickLearnUploadList(getUploadedList()));
       quickUploadTable.setVisibleColumns(QuickUploadMasterContainer.NATURAL_COL_ORDER_QUICKUPLOAD_INFO);
       quickUploadTable.setColumnHeaders(QuickUploadMasterContainer.COL_HEADERS_ENGLISH_QUICKUPLOAD_INFO);
+      // show the first value selected in the table
+     // quickUploadTable.setValue(quickUploadTable.firstItemId());
     }
 
     @Override
@@ -345,8 +386,9 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
             } 
              isNewQuickUpload=false;
              setQuikLearnDetails(getQuickUploadDetails());
-             updateQuickUploadDetails(getQuikLearnDetails());
+             showTopicInformation(getQuikLearnDetails());
              updateQuickUplaodTabSheet();
+             quickUploadTable.setValue(topic);
             
         }
     }
@@ -408,23 +450,37 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         this.QuikLearnDetails = QuikLearnDetails;
     }
 
-    private void updateQuickUploadDetails(MasteParmBean quickLearn){
+    private void showTopicInformation(MasteParmBean quickLearn){
         if(quickLearn!=null){
+            
+            topicInformationLayout.setVisible(true);
+           standardtxt.setReadOnly(false);
+           subjecttxt.setReadOnly(false);
+           topictxt.setReadOnly(false);
+           topicTagstxt.setReadOnly(false);
+           
+           
            standardtxt.setValue(quickLearn.getStd()); 
            subjecttxt.setValue(quickLearn.getSub());
            topictxt.setValue(quickLearn.getTopic());
            topicTagstxt.setValue(quickLearn.getTopicTags());
+           
+           
+           standardtxt.setReadOnly(true);
+           subjecttxt.setReadOnly(true);
+           topictxt.setReadOnly(true);
+           topicTagstxt.setReadOnly(true);
+           
         }
     }
-
-    private void buildTopRowLayout() 
+    private void buildTopHorizontalRowLayout() 
     {
         HorizontalLayout top = new HorizontalLayout();
         top.setWidth("100%");
         top.setSpacing(true);
         top.addStyleName(GlobalConstants.toolbar_style);
         addComponent(top);
-        final Label title = new Label(GlobalConstants.Quick_Upload);
+        final Label title = new Label(GlobalConstants.Upload_Topics);
         title.setSizeUndefined();
         title.addStyleName(GlobalConstants.h1_style);
         top.addComponent(title);
@@ -436,13 +492,21 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         buttons.setSpacing(true);
         buttons.setSizeUndefined();
 
+        newbtn = new Button(GlobalConstants.New,(Button.ClickListener)this);
+        newbtn.addStyleName(GlobalConstants.default_style);
+        newbtn.setImmediate(true);  
+        buttons.addComponent(newbtn);
+        
         savebtn = new Button(GlobalConstants.Save,(Button.ClickListener)this);
         savebtn.addStyleName(GlobalConstants.default_style);
+        savebtn.setImmediate(true);
+        savebtn.setVisible(false);
         buttons.addComponent(savebtn);
 
         cancelbtn = new Button(GlobalConstants.Cancel,(Button.ClickListener)this);
         cancelbtn.setImmediate(true);  
         cancelbtn.addStyleName(GlobalConstants.default_style);
+        cancelbtn.setVisible(false);
         buttons.addComponent(cancelbtn);        
        
         top.addComponent(buttons);
