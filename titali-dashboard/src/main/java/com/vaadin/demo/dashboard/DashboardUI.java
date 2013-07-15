@@ -432,21 +432,24 @@ public class DashboardUI extends UI{
             menu.getComponent(0).addStyleName("selected");
             helpManager.showHelpFor(DashboardView.class);
         } else {
+            if(!f.equals(GlobalConstants.emptyString))
+            {
             nav.navigateTo(f);
             helpManager.showHelpFor(routes.get(f));
             viewNameToMenuButton.get(f).addStyleName("selected");
+            }
         }
 
         nav.addViewChangeListener(new ViewChangeListener() {
 
             @Override
-            public boolean beforeViewChange(ViewChangeEvent event) {
+            public boolean beforeViewChange(ViewChangeListener.ViewChangeEvent event) {
                 helpManager.closeAll();
                 return true;
             }
 
             @Override
-            public void afterViewChange(ViewChangeEvent event) {
+            public void afterViewChange(ViewChangeListener.ViewChangeEvent event) {
                 View newView = event.getNewView();
                 helpManager.showHelpFor(newView);
                 if (autoCreateReport && newView instanceof ReportsView) {
