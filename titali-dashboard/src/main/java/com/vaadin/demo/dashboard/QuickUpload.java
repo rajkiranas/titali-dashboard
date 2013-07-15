@@ -66,8 +66,10 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     private String otherNotes;
     private String previousQuestions;
     private QuickUploadTable quickUploadTable;
-    MasteParmBean QuikLearnDetails;
-    Userprofile loggedInProfile;
+    private MasteParmBean QuikLearnDetails;
+    private Userprofile loggedInProfile;
+    private HorizontalLayout row;
+    private CssLayout cssTabSheetLayout;
     
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -75,24 +77,6 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         addStyleName("schedule");
         loggedInProfile=(Userprofile)getSession().getAttribute(GlobalConstants.CurrentUserProfile);
     }
-    
-    
-    public List<Std> getStandardList() {
-        return standardList;
-    }
-
-    public void setStandardList(List<Std> standardList) {
-        this.standardList = standardList;
-    }
-
-    public List<QuickLearn> getSubjectList() {
-        return subjectList;
-    }
-
-    public void setSubjectList(List<QuickLearn> subjectList) {
-        this.subjectList = subjectList;
-    }
-    
     
     public QuickUpload(){
         isNewQuickUpload=true;
@@ -102,7 +86,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         setStandardList(MasterDataProvider.getStandardList());
         setUploadedList(MasterDataProvider.getQuickLearnUploadList());
        
-        HorizontalLayout row = new HorizontalLayout();
+        row = new HorizontalLayout();
         row.setSizeFull();
         row.setMargin(new MarginInfo(true, true, false, true));
         row.setSpacing(true);
@@ -110,23 +94,9 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         setExpandRatio(row, 1.5f);      
        
         row.addComponent(UIUtils.createPanel(buildUploadedTopicsTableLayout()));
-        row.addComponent(UIUtils.createPanel(buildTabSheetLayout()));
-    }
-    
-    /* private Component buildStdSubTopicPaneview() {
-        VerticalLayout mainVertical=new VerticalLayout();
-//        ver.setWidth("100px");
-//        ver.setHeight("300px");
         
-        HorizontalLayout tableView = new HorizontalLayout();
-        tableView.setSpacing(true);
-        tableView.setWidth("100%");
-        tableView.setHeight("100%");
-        tableView.addComponent(buildQuickUplaodTable());
-        mainVertical.addComponent(tableView);      
-       
-        return mainVertical;
-    } */
+        //row.addComponent(UIUtils.createPanel(buildTabSheetLayout()));
+    }
     
     private VerticalLayout buildTabSheetLayout() {
         VerticalLayout mainVertical=new VerticalLayout();
@@ -144,7 +114,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
            mainVertical.setWidth("100%");
            mainVertical.setHeight("97%");
            
-           CssLayout aboutLearnLayout =  UIUtils.createPanel(buildTopicDetailsLayout(false));
+           CssLayout aboutLearnLayout =  UIUtils.createPanel(buildTopicDetailsLayout());
            aboutLearnLayout.setCaption("Topic Information");
            
            mainVertical.addComponent(aboutLearnLayout);
@@ -152,10 +122,11 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
            return mainVertical;
     }
 
-     private HorizontalLayout topicInformationLayout = new HorizontalLayout();     
+     private HorizontalLayout topicInformationLayout;
                
-    private HorizontalLayout buildTopicDetailsLayout(boolean visibility)
+    private HorizontalLayout buildTopicDetailsLayout()
     {
+        topicInformationLayout = new HorizontalLayout();
         
         topicInformationLayout.setSpacing(true);
         topicInformationLayout.setSizeFull();
@@ -223,7 +194,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         secondVerticalyt.setExpandRatio(topicTagstxt, 1);        
         
         topicInformationLayout.addComponent(secondVerticalyt);
-        topicInformationLayout.setVisible(visibility);
+        //topicInformationLayout.setVisible(visibility);
         return topicInformationLayout;
     }
        private VerticalLayout buildUploadedTopicsTableLayout()
@@ -262,6 +233,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         this.uploadedList = uploadedList;
     }
 
+    
     @Override
     public void buttonClick(ClickEvent event) {
         final Button source = event.getButton();
@@ -269,7 +241,8 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
             newbtn.setVisible(false);
             savebtn.setVisible(true);
             cancelbtn.setVisible(true);
-            buildTopicDetailsLayout(true);
+            cssTabSheetLayout=UIUtils.createPanel(buildTabSheetLayout());
+            row.addComponent(cssTabSheetLayout);
             
         } else if (source == savebtn) {
             try {
@@ -279,6 +252,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
 
                 saveQuickUploadDetails();
                 Notification.show("Saved successfully", Notification.Type.WARNING_MESSAGE);
+                removeTabsheetLayout();
                 updateQuickUploadTable();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -288,6 +262,15 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
             savebtn.setVisible(false);
             cancelbtn.setVisible(false);
             topicInformationLayout.setVisible(false);
+            removeTabsheetLayout();
+        }
+    }
+    
+    private void removeTabsheetLayout()
+    {
+        if(cssTabSheetLayout!=null)
+        {
+                row.removeComponent(cssTabSheetLayout);
         }
     }
 
@@ -512,4 +495,22 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         top.addComponent(buttons);
         top.setComponentAlignment(buttons, Alignment.TOP_RIGHT); 
     }
+    
+    public List<Std> getStandardList() {
+        return standardList;
+    }
+
+    public void setStandardList(List<Std> standardList) {
+        this.standardList = standardList;
+    }
+
+    public List<QuickLearn> getSubjectList() {
+        return subjectList;
+    }
+
+    public void setSubjectList(List<QuickLearn> subjectList) {
+        this.subjectList = subjectList;
+    }
+    
+    
 }

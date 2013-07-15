@@ -22,16 +22,13 @@ public class DashBoardVideoPlayer extends VerticalLayout implements Button.Click
         setSpacing(true);
         Component c = buildVideoPlayer();
         addComponent(c);
-        setExpandRatio(c, 2.5f);
-        setExpandRatio(addStartStopButtons(),0.5f);
-        
-    //    Component c1 =buildVideoDetailsLayout();
-      //  addComponent(c1);
-        //setExpandRatio(c1,1.5f);
+        //setExpandRatio(c, 2.5f);
+        //setExpandRatio(addStartStopButtons(),0.5f);
+        addComponent(addStartStopButtons());        
     }
 
     Video sample = new Video(null, new FileResource(new File(
-               "C:/Users/rajkiran/Desktop/video/bbb_theora_486kbit.ogv")));
+               "/home/rajkirans/NetBeansProjects/project/video/bbb_theora_486kbit.ogv")));
     Button play;
     Button stop;
     
@@ -39,8 +36,8 @@ public class DashBoardVideoPlayer extends VerticalLayout implements Button.Click
         
        
         //sample.setParameter("allowFullScreen", "true");
-        sample.setWidth(520.0f, Sizeable.Unit.PIXELS);
-        sample.setHeight(450.0f, Sizeable.Unit.PIXELS);
+        sample.setWidth(500.0f, Sizeable.Unit.PIXELS);
+        sample.setHeight(250.0f, Sizeable.Unit.PIXELS);
         
 
             
@@ -64,8 +61,8 @@ public class DashBoardVideoPlayer extends VerticalLayout implements Button.Click
         buttonLayout.addComponent(play);
         buttonLayout.addComponent(stop);
         buttonLayout.setWidth("100%");
-        addComponent(buttonLayout);
-        setComponentAlignment(buttonLayout, Alignment.TOP_LEFT);
+        
+        //setComponentAlignment(buttonLayout, Alignment.TOP_LEFT);
 
         return buttonLayout;
     }
