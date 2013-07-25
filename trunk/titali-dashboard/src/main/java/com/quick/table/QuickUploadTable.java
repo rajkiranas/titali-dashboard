@@ -22,7 +22,7 @@ public class QuickUploadTable extends Table {
 
         //setCaption("Uploaded topics");
         //addStyleName("plain");
-        addStyleName("borderless");
+        //addStyleName("borderless");
         setSortEnabled(true);
         setWidth("100%");
         setPageLength(10);
