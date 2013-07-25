@@ -66,10 +66,14 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     private String otherNotes;
     private String previousQuestions;
     private QuickUploadTable quickUploadTable;
-    private MasteParmBean QuikLearnDetails;
+    private MasteParmBean quikLearnMasterParamDetails;
     private Userprofile loggedInProfile;
     private HorizontalLayout row;
     private CssLayout cssTabSheetLayout;
+    private DashBoardVideoPlayer player;
+    private HorizontalLayout topicInformationLayout;
+
+
     
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
@@ -97,16 +101,33 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         
         //row.addComponent(UIUtils.createPanel(buildTabSheetLayout()));
     }
+
+    /** Used to show the list of uploaded items
+     * called when admin user goes to upload topics menu
+     */
+    private VerticalLayout buildUploadedTopicsTableLayout() {
+        VerticalLayout mainVertical = new VerticalLayout();
+        //HorizontalLayout tableView = new HorizontalLayout();
+        mainVertical.setSpacing(true);
+        mainVertical.setWidth("100%");
+        mainVertical.setHeight("97%");
+        quickUploadTable = new QuickUploadTable(this);
+        mainVertical.addComponent(quickUploadTable);
+        //mainVertical.addComponent(tableView);
+        return mainVertical;
+    }
+    
     
     private VerticalLayout buildTabSheetLayout() {
         VerticalLayout mainVertical=new VerticalLayout();
         
            editors = new TabSheet();
            editors.setSizeFull();
-           editors.addTab(new DashBoardVideoPlayer(),"Video");
-           editors.addTab(new QuickUploadNotes(this), "Notes");
-           editors.addTab(new QuickUploadOtherNotes(this), "Other Notes");
-           editors.addTab(new QuickUploadPreviousQuestion(this), "Previous Questions");
+           //player = new DashBoardVideoPlayer();
+           editors.addTab(getVideoPathLayout(),"Video");
+           editors.addTab(getNotesLayout(), "Notes");
+           editors.addTab(getOtherNotesLayout(), "Other Notes");
+           editors.addTab(getPreviousQuestionsLayout(), "Previous Questions");
            CssLayout cssTabsheetLayout = UIUtils.createPanel(editors);
            
            mainVertical.addComponent(cssTabsheetLayout);
@@ -121,8 +142,77 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
            mainVertical.setExpandRatio(aboutLearnLayout, 1);
            return mainVertical;
     }
+    
 
-     private HorizontalLayout topicInformationLayout;
+    private TextField txtVideoPath=new TextField();
+
+    private VerticalLayout getVideoPathLayout() {
+       VerticalLayout layout= new VerticalLayout();
+       
+         txtVideoPath.setInputPrompt("Enter server video path");
+         txtVideoPath.setCaption("Video file");
+         txtVideoPath.setWidth("70%");
+         
+         layout.setSpacing(true);
+         layout.setSizeFull();
+         layout.addComponent(txtVideoPath);
+         layout.setComponentAlignment(txtVideoPath, Alignment.MIDDLE_CENTER);
+       
+       return layout;
+    }
+    
+    private VerticalLayout getNotesLayout() {
+        VerticalLayout layout= new VerticalLayout();
+        layout.setSizeFull();
+        layout.setSpacing(true);
+        layout.setMargin(true);
+        
+        RichTextArea notesRichTextArea = new RichTextArea();
+        notesRichTextArea.setSizeFull();
+        
+        
+        layout.addComponent(notesRichTextArea);
+        layout.setExpandRatio(notesRichTextArea, 2);
+        
+        return layout;
+        
+    }
+    
+    private VerticalLayout getOtherNotesLayout() {
+        VerticalLayout layout= new VerticalLayout();
+        layout.setSizeFull();
+        layout.setSpacing(true);
+        layout.setMargin(true);
+        
+        RichTextArea otherNotesRichTextArea = new RichTextArea();
+        otherNotesRichTextArea.setSizeFull();
+        
+        
+        layout.addComponent(otherNotesRichTextArea);
+        layout.setExpandRatio(otherNotesRichTextArea, 2);
+        
+        return layout;
+        
+    }
+    
+    private VerticalLayout getPreviousQuestionsLayout() {
+        VerticalLayout layout= new VerticalLayout();
+        layout.setSizeFull();
+        layout.setSpacing(true);
+        layout.setMargin(true);
+        
+        RichTextArea previousQuestionsRichTextArea = new RichTextArea();
+        previousQuestionsRichTextArea.setSizeFull();
+        
+        
+        layout.addComponent(previousQuestionsRichTextArea);
+        layout.setExpandRatio(previousQuestionsRichTextArea, 2);
+        
+        return layout;
+        
+    }
+    
+
                
     private HorizontalLayout buildTopicDetailsLayout()
     {
@@ -145,6 +235,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         standardtxt.setValue("Select"); 
         standardtxt.setImmediate(true);
         standardtxt.setNullSelectionAllowed(false);
+        
         Iterator it=getStandardList().iterator();
         while(it.hasNext()){
             Std s=(Std) it.next();
@@ -197,29 +288,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         //topicInformationLayout.setVisible(visibility);
         return topicInformationLayout;
     }
-       private VerticalLayout buildUploadedTopicsTableLayout()
-    {
-        VerticalLayout mainVertical=new VerticalLayout();
-        //HorizontalLayout tableView = new HorizontalLayout();
-        mainVertical.setSpacing(true);
-        mainVertical.setWidth("100%");
-        mainVertical.setHeight("97%");
-        mainVertical.addComponent(buildQuickUplaodTable());
-        //mainVertical.addComponent(tableView);
-        return mainVertical;
-    }
-    
-    private TabSheet buildVideoNotesTabSheet() {
-           editors = new TabSheet();
-           editors.setSizeFull();
-           editors.addTab(new DashBoardVideoPlayer(),"Video");
-           editors.addTab(new QuickUploadNotes(this), "Notes");
-           editors.addTab(new QuickUploadOtherNotes(this), "Other Notes");
-           editors.addTab(new QuickUploadPreviousQuestion(this), "Previous Questions");
-           return editors;
-    }
-    
-   
+      
     
     public QuickUploadMasterContainer getQuickUploadMasterContainer() {
         return QuickUploadMasterContainer.getQuickLearnUploadList(getUploadedList());
@@ -234,94 +303,107 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     }
 
     
-    @Override
-    public void buttonClick(ClickEvent event) {
-        final Button source = event.getButton();
-        if (source == newbtn) {
-            newbtn.setVisible(false);
-            savebtn.setVisible(true);
-            cancelbtn.setVisible(true);
-            cssTabSheetLayout=UIUtils.createPanel(buildTabSheetLayout());
-            row.addComponent(cssTabSheetLayout);
-            
-        } else if (source == savebtn) {
-            try {
-                newbtn.setVisible(true);
-                savebtn.setVisible(false);
-                cancelbtn.setVisible(false);
-
-                saveQuickUploadDetails();
-                Notification.show("Saved successfully", Notification.Type.WARNING_MESSAGE);
-                removeTabsheetLayout();
-                updateQuickUploadTable();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        } else if (source == cancelbtn) {
-            newbtn.setVisible(true);
-            savebtn.setVisible(false);
-            cancelbtn.setVisible(false);
-            topicInformationLayout.setVisible(false);
-            removeTabsheetLayout();
-        }
-    }
+    
     
     private void removeTabsheetLayout()
     {
         if(cssTabSheetLayout!=null)
         {
-                row.removeComponent(cssTabSheetLayout);
+           row.removeComponent(cssTabSheetLayout);
         }
     }
 
-    private void saveQuickUploadDetails() {
-        Client client=Client.create();
-        WebResource webResource = client.resource(GlobalConstants.getProperty(GlobalConstants.SAVE_UPLOAD_DETAILS_URL));
-        JSONObject inputJson=new JSONObject();
-        try{   
-           String uploadedBy=loggedInProfile.getName();
-           inputJson.put("uploadedBy", uploadedBy);  
-           inputJson.put("std", standardtxt.getValue());  
-           inputJson.put("sub", subjecttxt.getValue());
-           inputJson.put("topic", topictxt.getValue());
-           inputJson.put("tags", topicTagstxt.getValue());  
-           if(!getNotes().equals("")){
-              inputJson.put("notes", getNotes());  
-           }else{
-             inputJson.put("notes", "no data");   
-           }
-            
-           if(!getOtherNotes().equals("")){
-               inputJson.put("othernotes", getOtherNotes());   
-           }else{
-              inputJson.put("othernotes", "no data");  
-           }
-          
-           if(!getPreviousQuestions().equals("")){
-               inputJson.put("pq", getPreviousQuestions());   
-           }else{
-               inputJson.put("pq","no data"); 
-           }
-                 
-           if(isNewQuickUpload){
-               inputJson.put("uploadId","null");  
-           }else{
-               inputJson.put("uploadId",uploadId);  
-           }   
-        }catch (JSONException ex){
-            ex.printStackTrace();
-        }        
+    private void validateAndSaveQuickUploadDetails() throws JSONException {
         
-        ClientResponse response = webResource.type("application/json").post(ClientResponse.class, inputJson);
+        //validations
+        if(loggedInProfile.getName()==null || loggedInProfile.getName().trim().equals(GlobalConstants.emptyString))
+        {
+            Notification.show("User not properly logged in.", Notification.Type.WARNING_MESSAGE);
+        }
+        else if(standardtxt.getValue()==null || ((String)standardtxt.getValue()).trim().equals(GlobalConstants.emptyString))
+        {
+            Notification.show("Please enter standard.", Notification.Type.WARNING_MESSAGE);
+        }
+        else if(subjecttxt.getValue()==null || ((String)subjecttxt.getValue()).trim().equals(GlobalConstants.emptyString))
+        {
+            Notification.show("Please enter subject.", Notification.Type.WARNING_MESSAGE);
+        }
+        else if(topictxt.getValue()==null || ((String)topictxt.getValue()).trim().equals(GlobalConstants.emptyString))
+        {
+            Notification.show("Please enter topic.", Notification.Type.WARNING_MESSAGE);
+        }
+        else if(topicTagstxt.getValue()==null || ((String)topicTagstxt.getValue()).trim().equals(GlobalConstants.emptyString))
+        {
+            Notification.show("Please enter tags for topic.", Notification.Type.WARNING_MESSAGE);
+        }
+        else
+        {
+            //executions
+            JSONObject inputJson = new JSONObject();
+            try 
+            {
+                String uploadedBy = loggedInProfile.getName();
+                inputJson.put("uploadedBy", uploadedBy);
+                inputJson.put("std", standardtxt.getValue());
+                inputJson.put("sub", subjecttxt.getValue());
+                inputJson.put("topic", topictxt.getValue());
+                inputJson.put("tags", topicTagstxt.getValue());
+                inputJson.put("video_path", player.getVideoPath());
 
-        /*
-         * if (response.getStatus() != 201) { throw new RuntimeException("Failed
-         * : HTTP error code : " + response.getStatus()); }
-         */
+                if (!getNotes().equals(GlobalConstants.emptyString)) 
+                {
+                    inputJson.put("notes", getNotes());
+                } else {
+                    inputJson.put("notes", "no data");
+                }
 
-        String output = response.getEntity(String.class);
-        System.out.println("output="+output);
+                if (!getOtherNotes().equals("")) {
+                    inputJson.put("othernotes", getOtherNotes());
+                } else {
+                    inputJson.put("othernotes", "no data");
+                }
+
+                if (!getPreviousQuestions().equals("")) {
+                    inputJson.put("pq", getPreviousQuestions());
+                } else {
+                    inputJson.put("pq", "no data");
+                }
+
+                if (isNewQuickUpload) {
+                    inputJson.put("uploadId", "null");
+                } else {
+                    inputJson.put("uploadId", uploadId);
+                }
+
+            } catch (JSONException ex) 
+            {
+                ex.printStackTrace();
+                throw ex;
+            }
+
+
+            Client client = Client.create();
+            WebResource webResource = client.resource(GlobalConstants.getProperty(GlobalConstants.SAVE_UPLOAD_DETAILS_URL));
+            ClientResponse response = webResource.type("application/json").post(ClientResponse.class, inputJson);
+
+            /*
+             * if (response.getStatus() != 201) { throw new RuntimeException("Failed
+             * : HTTP error code : " + response.getStatus()); }
+             */
+
+            String output = response.getEntity(String.class);
+            System.out.println("output=" + output);
+            
+            Notification.show("Saved successfully", Notification.Type.WARNING_MESSAGE);
+            removeTabsheetLayout();
+            updateQuickUploadTable();
+            
+            newbtn.setVisible(true);
+                savebtn.setVisible(false);
+                cancelbtn.setVisible(false);
+
     }
+}
 
     public String getNotes() {
         return notes;
@@ -347,14 +429,15 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         this.previousQuestions = previousQuestions;
     }
 
-    private Table buildQuickUplaodTable() {
-       return quickUploadTable=new QuickUploadTable(this);
-    }
-
+   
     private void updateQuickUploadTable() {
-      quickUploadTable.setContainerDataSource(QuickUploadMasterContainer.getQuickLearnUploadList(getUploadedList()));
+        
+        row.removeAllComponents();
+      /* quickUploadTable.setContainerDataSource(QuickUploadMasterContainer.getQuickLearnUploadList(getUploadedList()));
       quickUploadTable.setVisibleColumns(QuickUploadMasterContainer.NATURAL_COL_ORDER_QUICKUPLOAD_INFO);
-      quickUploadTable.setColumnHeaders(QuickUploadMasterContainer.COL_HEADERS_ENGLISH_QUICKUPLOAD_INFO);
+      quickUploadTable.setColumnHeaders(QuickUploadMasterContainer.COL_HEADERS_ENGLISH_QUICKUPLOAD_INFO); */
+        quickUploadTable=new QuickUploadTable(this);
+       row.addComponent(UIUtils.createPanel(quickUploadTable));
       // show the first value selected in the table
      // quickUploadTable.setValue(quickUploadTable.firstItemId());
     }
@@ -368,25 +451,37 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                uploadId = u.getUploadId();  
             } 
              isNewQuickUpload=false;
-             setQuikLearnDetails(getQuickUploadDetails());
-             showTopicInformation(getQuikLearnDetails());
+             
+             buildAndDisplaySelectedTopicInformation();
              updateQuickUplaodTabSheet();
-             quickUploadTable.setValue(topic);
-            
+             //quickUploadTable.setValue(topic);
         }
+    }
+    
+    private void buildAndDisplaySelectedTopicInformation() {
+        if(cssTabSheetLayout==null)
+        {
+           cssTabSheetLayout=UIUtils.createPanel(buildTabSheetLayout());
+        }
+        
+        row.addComponent(cssTabSheetLayout);
+        
+        setQuikLearnMasterParamDetails(getQuickUploadDetailsFromDB());
+        showTopicInformation(getQuikLearnMasterParamDetails());
     }
 
     private void updateQuickUplaodTabSheet() {
            
            editors.removeAllComponents();
-           editors.addTab(new DashBoardVideoPlayer(),"Video");
-           editors.addTab(new QuickUploadNotes(getQuikLearnDetails(),this), "Notes");
-           editors.addTab(new QuickUploadOtherNotes(getQuikLearnDetails(),this), "OtherNotes");
-           editors.addTab(new QuickUploadPreviousQuestion(getQuikLearnDetails(),this), "Previous Questions");
+           player = new DashBoardVideoPlayer();
+           editors.addTab(player,"Video");
+           editors.addTab(new QuickUploadNotes(getQuikLearnMasterParamDetails(),this), "Notes");
+           editors.addTab(new QuickUploadOtherNotes(getQuikLearnMasterParamDetails(),this), "OtherNotes");
+           editors.addTab(new QuickUploadPreviousQuestion(getQuikLearnMasterParamDetails(),this), "Previous Questions");
     }
 
    
-     private MasteParmBean getQuickUploadDetails() {
+     private MasteParmBean getQuickUploadDetailsFromDB() {
        
           List<MasteParmBean>list =null;
           try {
@@ -425,12 +520,13 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         
     }
 
-    public MasteParmBean getQuikLearnDetails() {
-        return QuikLearnDetails;
+    public MasteParmBean getQuikLearnMasterParamDetails() {
+        return quikLearnMasterParamDetails;
     }
 
-    public void setQuikLearnDetails(MasteParmBean QuikLearnDetails) {
-        this.QuikLearnDetails = QuikLearnDetails;
+    public void setQuikLearnMasterParamDetails(MasteParmBean QuikLearnDetails) {
+        this.quikLearnMasterParamDetails = QuikLearnDetails;
+        System.out.println("quikLearnMasterParamDetails="+quikLearnMasterParamDetails);
     }
 
     private void showTopicInformation(MasteParmBean quickLearn){
@@ -511,6 +607,40 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     public void setSubjectList(List<QuickLearn> subjectList) {
         this.subjectList = subjectList;
     }
-    
-    
+
+    private void toggleNewSaveCancelButtons()
+    {
+
+    }
+
+    @Override
+    public void buttonClick(ClickEvent event) {
+        final Button source = event.getButton();
+        if (source == newbtn) {
+            newbtn.setVisible(false);
+            savebtn.setVisible(true);
+            cancelbtn.setVisible(true);
+            removeTabsheetLayout();
+            cssTabSheetLayout=UIUtils.createPanel(buildTabSheetLayout());
+            row.addComponent(cssTabSheetLayout);
+
+        } else if (source == savebtn) {
+            try 
+            {
+                
+                validateAndSaveQuickUploadDetails();
+                //removeTabsheetLayout();
+                
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                Notification.show("Saved failed", Notification.Type.WARNING_MESSAGE);
+            }
+        } else if (source == cancelbtn) {
+            newbtn.setVisible(true);
+            savebtn.setVisible(false);
+            cancelbtn.setVisible(false);
+            topicInformationLayout.setVisible(false);
+            removeTabsheetLayout();
+        }
+    }
 }

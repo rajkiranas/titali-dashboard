@@ -12,6 +12,11 @@ import java.util.Date;
  */
 public class MasteParmBean {
     private String sub;
+
+    @Override
+    public String toString() {
+        return "MasteParmBean{" + "sub=" + sub + ", std=" + std + ", div=" + div + ", topic=" + topic + ", uploadId=" + uploadId + ", uploadDate=" + uploadDate + ", notes=" + notes + ", othernotes=" + othernotes + ", topicTags=" + topicTags + ", previousQuestion=" + previousQuestion + ", videoPath=" + videoPath + ", videoInfo=" + videoInfo + ", lectureNotes=" + lectureNotes + ", lectureNotesInformation=" + lectureNotesInformation + ", otherNotes=" + otherNotes + ", otherNotesInformation=" + otherNotesInformation + ", previousQuestionInformation=" + previousQuestionInformation + ", activityId=" + activityId + ", byWhom=" + byWhom + ", displaynotification=" + displaynotification + '}';
+    }
     private String std;
     private String div;
     private String topic;
