@@ -146,7 +146,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     }
     
 
-    private TextField txtVideoPath=new TextField();
+    private TextField txtVideoPath;
 
     private VerticalLayout getVideoPathLayout(String videoPath) {
        VerticalLayout layout= new VerticalLayout();
@@ -167,7 +167,8 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
        }
        else
        {
-           // not video available, accept path from user
+         // not video available, accept path from user
+         txtVideoPath=new TextField();
          txtVideoPath.setInputPrompt("Enter server video path");
          txtVideoPath.setCaption("Video file");
          txtVideoPath.setWidth("70%");
@@ -178,17 +179,19 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
        return layout;
     }
     
-    private VerticalLayout getNotesLayout(String notes) {
+    private RichTextArea notesRichTextArea;
+    
+    private VerticalLayout getNotesLayout(String strNotes) {
         VerticalLayout layout= new VerticalLayout();
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setMargin(true);
         
-        RichTextArea notesRichTextArea = new RichTextArea();
+        notesRichTextArea = new RichTextArea();
         notesRichTextArea.setSizeFull();
-        if(notes!=null)
+        if(strNotes!=null)
         {
-            notesRichTextArea.setValue(notes);
+            notesRichTextArea.setValue(strNotes);
         }
         
         
@@ -199,15 +202,17 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         
     }
     
+    private RichTextArea otherNotesRichTextArea;
+    
     private VerticalLayout getOtherNotesLayout(String otherNotes) {
         VerticalLayout layout= new VerticalLayout();
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setMargin(true);
         
-        RichTextArea otherNotesRichTextArea = new RichTextArea();
+        otherNotesRichTextArea = new RichTextArea();
         otherNotesRichTextArea.setSizeFull();
-        if(notes!=null)
+        if(otherNotes!=null)
         {
             otherNotesRichTextArea.setValue(otherNotes);
         }
@@ -219,15 +224,16 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         
     }
     
+    private RichTextArea previousQuestionsRichTextArea;
     private VerticalLayout getPreviousQuestionsLayout(String previousQuestions) {
         VerticalLayout layout= new VerticalLayout();
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setMargin(true);
         
-        RichTextArea previousQuestionsRichTextArea = new RichTextArea();
+        previousQuestionsRichTextArea = new RichTextArea();
         previousQuestionsRichTextArea.setSizeFull();
-        if(notes!=null)
+        if(previousQuestions!=null)
         {
             previousQuestionsRichTextArea.setValue(previousQuestions);
         }
@@ -340,18 +346,20 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         }
     }
 
+    private static String Select = "Select";
     private void validateAndSaveQuickUploadDetails() throws JSONException {
         
+        System.out.println("standardtxt.getValue()="+standardtxt.getValue());
         //validations
         if(loggedInProfile.getName()==null || loggedInProfile.getName().trim().equals(GlobalConstants.emptyString))
         {
             Notification.show("User not properly logged in.", Notification.Type.WARNING_MESSAGE);
         }
-        else if(standardtxt.getValue()==null || ((String)standardtxt.getValue()).trim().equals(GlobalConstants.emptyString))
+        else if(standardtxt.getValue()==null || ((String)standardtxt.getValue()).trim().equals(GlobalConstants.emptyString) || ((String)standardtxt.getValue()).trim().equalsIgnoreCase(Select))
         {
             Notification.show("Please enter standard.", Notification.Type.WARNING_MESSAGE);
         }
-        else if(subjecttxt.getValue()==null || ((String)subjecttxt.getValue()).trim().equals(GlobalConstants.emptyString))
+        else if(subjecttxt.getValue()==null || ((String)subjecttxt.getValue()).trim().equals(GlobalConstants.emptyString)|| ((String)subjecttxt.getValue()).trim().equalsIgnoreCase(Select))
         {
             Notification.show("Please enter subject.", Notification.Type.WARNING_MESSAGE);
         }
@@ -375,23 +383,23 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                 inputJson.put("sub", subjecttxt.getValue());
                 inputJson.put("topic", topictxt.getValue());
                 inputJson.put("tags", topicTagstxt.getValue());
-                inputJson.put("video_path", player.getVideoPath());
+                inputJson.put("video_path", txtVideoPath.getValue());
 
-                if (!getNotes().equals(GlobalConstants.emptyString)) 
+                if (!notesRichTextArea.getValue().equals(GlobalConstants.emptyString))
                 {
-                    inputJson.put("notes", getNotes());
+                    inputJson.put("notes", notesRichTextArea.getValue());
                 } else {
                     inputJson.put("notes", "no data");
                 }
 
-                if (!getOtherNotes().equals("")) {
-                    inputJson.put("othernotes", getOtherNotes());
+                if (!otherNotesRichTextArea.getValue().equals(GlobalConstants.emptyString)) {
+                    inputJson.put("othernotes", otherNotesRichTextArea.getValue());
                 } else {
                     inputJson.put("othernotes", "no data");
                 }
 
-                if (!getPreviousQuestions().equals("")) {
-                    inputJson.put("pq", getPreviousQuestions());
+                if (!previousQuestionsRichTextArea.getValue().equals(GlobalConstants.emptyString)) {
+                    inputJson.put("pq", previousQuestionsRichTextArea.getValue());
                 } else {
                     inputJson.put("pq", "no data");
                 }
@@ -540,7 +548,9 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
             Gson gson=  new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").create();
             list= gson.fromJson(outNObject.getString(GlobalConstants.QUICKLEARNLIST), listType);
             
-        } catch (JSONException ex) {
+        } catch (JSONException ex) 
+        {
+            ex.printStackTrace();
         }
           if(!list.isEmpty()){
               return list.get(0);
