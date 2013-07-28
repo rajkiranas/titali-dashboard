@@ -29,6 +29,8 @@ import com.quick.ui.QuickUpload.QuickUploadNotes;
 import com.quick.ui.QuickUpload.QuickUploadOtherNotes;
 import com.quick.ui.QuickUpload.QuickUploadPreviousQuestion;
 import com.quick.utilities.UIUtils;
+import com.vaadin.event.FieldEvents;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FileResource;
@@ -36,11 +38,13 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import java.awt.peer.TextFieldPeer;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -169,11 +173,14 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
        {
          // not video available, accept path from user
          txtVideoPath=new TextField();
+         txtVideoPath.setImmediate(true);
          txtVideoPath.setInputPrompt("Enter server video path");
          txtVideoPath.setCaption("Video file");
          txtVideoPath.setWidth("70%");
+         txtVideoPath.addValueChangeListener(this);
          layout.addComponent(txtVideoPath);
          layout.setComponentAlignment(txtVideoPath, Alignment.MIDDLE_CENTER);
+         
        }
        
        return layout;
@@ -188,11 +195,15 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         layout.setMargin(true);
         
         notesRichTextArea = new RichTextArea();
+        
         notesRichTextArea.setSizeFull();
         if(strNotes!=null)
         {
             notesRichTextArea.setValue(strNotes);
         }
+        
+        notesRichTextArea.setImmediate(true);
+        notesRichTextArea.addValueChangeListener(this);
         
         
         layout.addComponent(notesRichTextArea);
@@ -211,11 +222,15 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         layout.setMargin(true);
         
         otherNotesRichTextArea = new RichTextArea();
+        
         otherNotesRichTextArea.setSizeFull();
         if(otherNotes!=null)
         {
             otherNotesRichTextArea.setValue(otherNotes);
         }
+        
+        otherNotesRichTextArea.setImmediate(true);
+        otherNotesRichTextArea.addValueChangeListener(this);
         
         layout.addComponent(otherNotesRichTextArea);
         layout.setExpandRatio(otherNotesRichTextArea, 2);
@@ -232,11 +247,15 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         layout.setMargin(true);
         
         previousQuestionsRichTextArea = new RichTextArea();
+        
         previousQuestionsRichTextArea.setSizeFull();
         if(previousQuestions!=null)
         {
             previousQuestionsRichTextArea.setValue(previousQuestions);
         }
+        
+        previousQuestionsRichTextArea.setImmediate(true);
+        previousQuestionsRichTextArea.addValueChangeListener(this);
         
         layout.addComponent(previousQuestionsRichTextArea);
         layout.setExpandRatio(previousQuestionsRichTextArea, 2);
@@ -349,7 +368,6 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     private static String Select = "Select";
     private void validateAndSaveQuickUploadDetails() throws JSONException {
         
-        System.out.println("standardtxt.getValue()="+standardtxt.getValue());
         //validations
         if(loggedInProfile.getName()==null || loggedInProfile.getName().trim().equals(GlobalConstants.emptyString))
         {
@@ -373,7 +391,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         }
         else
         {
-            //executions
+            //executions - inserting in db
             JSONObject inputJson = new JSONObject();
             try 
             {
@@ -383,7 +401,16 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                 inputJson.put("sub", subjecttxt.getValue());
                 inputJson.put("topic", topictxt.getValue());
                 inputJson.put("tags", topicTagstxt.getValue());
-                inputJson.put("video_path", txtVideoPath.getValue());
+                
+                if (txtVideoPath != null)
+                {
+                    inputJson.put("video_path", txtVideoPath.getValue());
+                }
+                else
+                {
+                    String dummyString="null";
+                    inputJson.put("video_path", dummyString);
+                }
 
                 if (!notesRichTextArea.getValue().equals(GlobalConstants.emptyString))
                 {
@@ -477,21 +504,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
      // quickUploadTable.setValue(quickUploadTable.firstItemId());
     }
 
-    @Override
-    public void valueChange(ValueChangeEvent event) {
-        Property property=event.getProperty();
-        if(property==quickUploadTable){            
-            Set<MasteParmBean> topic=(Set<MasteParmBean>) property.getValue();
-            for(MasteParmBean u:topic){
-               uploadId = u.getUploadId();  
-            } 
-             isNewQuickUpload=false;
-             
-             buildAndDisplaySelectedTopicInformation();
-             
-             //quickUploadTable.setValue(topic);
-        }
-    }
+   
     
     private void buildAndDisplaySelectedTopicInformation() {
         //fetch from db - service call
@@ -650,10 +663,6 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         this.subjectList = subjectList;
     }
 
-    private void toggleNewSaveCancelButtons()
-    {
-
-    }
 
     @Override
     public void buttonClick(ClickEvent event) {
@@ -684,6 +693,23 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
             cancelbtn.setVisible(false);
             topicInformationLayout.setVisible(false);
             removeTabsheetLayout();
+        }
+    }
+    
+     @Override
+    public void valueChange(ValueChangeEvent event) {
+        Property property=event.getProperty();
+        if(property==quickUploadTable){
+            Set<MasteParmBean> topic=(Set<MasteParmBean>) property.getValue();
+            for(MasteParmBean u:topic){
+               uploadId = u.getUploadId();  
+            } 
+             isNewQuickUpload=false;
+             buildAndDisplaySelectedTopicInformation();
+        }
+        else if(property==txtVideoPath || property==notesRichTextArea || property==otherNotesRichTextArea || property==previousQuestionsRichTextArea)
+        {
+            savebtn.setVisible(true);
         }
     }
 }
