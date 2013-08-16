@@ -28,12 +28,15 @@ import com.quick.ui.QuickLearn.PreviousQuestion;
 import com.quick.ui.QuickUpload.QuickUploadNotes;
 import com.quick.ui.QuickUpload.QuickUploadOtherNotes;
 import com.quick.ui.QuickUpload.QuickUploadPreviousQuestion;
+import com.quick.utilities.ConfirmationDialogueBox;
 import com.quick.utilities.UIUtils;
 import com.vaadin.event.FieldEvents;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FileResource;
+import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
@@ -151,6 +154,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     
 
     private TextField txtVideoPath;
+    private Video vPlayer;
 
     private VerticalLayout getVideoPathLayout(String videoPath) {
        VerticalLayout layout= new VerticalLayout();
@@ -160,13 +164,15 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
        if(videoPath!=null)
        {
            // video is available, show it on video player
-           Video v = new Video();
-           v.setImmediate(true);
-           v.setWidth("100%");
-           v.setHeight("100%");
-           v.addSource(new FileResource(new File(videoPath)));
-           layout.addComponent(v);
-           layout.setComponentAlignment(v, Alignment.MIDDLE_CENTER);
+           vPlayer = new Video();
+           vPlayer.setImmediate(true);
+           vPlayer.setWidth("100%");
+           vPlayer.setHeight("100%");
+           vPlayer.addSource(new FileResource(new File(videoPath)));
+           //vPlayer.addSource(new ExternalResource("file:/"+videoPath));
+           layout.addComponent(vPlayer);
+           layout.setComponentAlignment(vPlayer, Alignment.MIDDLE_CENTER);
+           
            
        }
        else
@@ -186,7 +192,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
        return layout;
     }
     
-    private RichTextArea notesRichTextArea;
+    private TextArea notesTextArea;
     
     private VerticalLayout getNotesLayout(String strNotes) {
         VerticalLayout layout= new VerticalLayout();
@@ -194,26 +200,26 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         layout.setSpacing(true);
         layout.setMargin(true);
         
-        notesRichTextArea = new RichTextArea();
+        notesTextArea = new TextArea();
         
-        notesRichTextArea.setSizeFull();
+        notesTextArea.setSizeFull();
         if(strNotes!=null)
         {
-            notesRichTextArea.setValue(strNotes);
+            notesTextArea.setValue(strNotes);
         }
         
-        notesRichTextArea.setImmediate(true);
-        notesRichTextArea.addValueChangeListener(this);
+        notesTextArea.setImmediate(true);
+        notesTextArea.addValueChangeListener(this);
         
         
-        layout.addComponent(notesRichTextArea);
-        layout.setExpandRatio(notesRichTextArea, 2);
+        layout.addComponent(notesTextArea);
+        layout.setExpandRatio(notesTextArea, 2);
         
         return layout;
         
     }
     
-    private RichTextArea otherNotesRichTextArea;
+    private TextArea otherNotesTextArea;
     
     private VerticalLayout getOtherNotesLayout(String otherNotes) {
         VerticalLayout layout= new VerticalLayout();
@@ -221,44 +227,44 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         layout.setSpacing(true);
         layout.setMargin(true);
         
-        otherNotesRichTextArea = new RichTextArea();
+        otherNotesTextArea = new TextArea();
         
-        otherNotesRichTextArea.setSizeFull();
+        otherNotesTextArea.setSizeFull();
         if(otherNotes!=null)
         {
-            otherNotesRichTextArea.setValue(otherNotes);
+            otherNotesTextArea.setValue(otherNotes);
         }
         
-        otherNotesRichTextArea.setImmediate(true);
-        otherNotesRichTextArea.addValueChangeListener(this);
+        otherNotesTextArea.setImmediate(true);
+        otherNotesTextArea.addValueChangeListener(this);
         
-        layout.addComponent(otherNotesRichTextArea);
-        layout.setExpandRatio(otherNotesRichTextArea, 2);
+        layout.addComponent(otherNotesTextArea);
+        layout.setExpandRatio(otherNotesTextArea, 2);
         
         return layout;
         
     }
     
-    private RichTextArea previousQuestionsRichTextArea;
+    private TextArea previousQuestionsTextArea;
     private VerticalLayout getPreviousQuestionsLayout(String previousQuestions) {
         VerticalLayout layout= new VerticalLayout();
         layout.setSizeFull();
         layout.setSpacing(true);
         layout.setMargin(true);
         
-        previousQuestionsRichTextArea = new RichTextArea();
+        previousQuestionsTextArea = new TextArea();
         
-        previousQuestionsRichTextArea.setSizeFull();
+        previousQuestionsTextArea.setSizeFull();
         if(previousQuestions!=null)
         {
-            previousQuestionsRichTextArea.setValue(previousQuestions);
+            previousQuestionsTextArea.setValue(previousQuestions);
         }
         
-        previousQuestionsRichTextArea.setImmediate(true);
-        previousQuestionsRichTextArea.addValueChangeListener(this);
+        previousQuestionsTextArea.setImmediate(true);
+        previousQuestionsTextArea.addValueChangeListener(this);
         
-        layout.addComponent(previousQuestionsRichTextArea);
-        layout.setExpandRatio(previousQuestionsRichTextArea, 2);
+        layout.addComponent(previousQuestionsTextArea);
+        layout.setExpandRatio(previousQuestionsTextArea, 2);
         
         return layout;
         
@@ -404,33 +410,40 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                 
                 if (txtVideoPath != null)
                 {
+                    //video player doesnt exists, need to update video path
                     inputJson.put("video_path", txtVideoPath.getValue());
                 }
                 else
                 {
-                    String dummyString="null";
-                    inputJson.put("video_path", dummyString);
+                    
+                    //video player exists, no need to update video path
+                    //String dummyEmptyString=GlobalConstants.emptyString;
+                    inputJson.put("video_path", getQuikLearnMasterParamDetails().getVideoPath());
                 }
+                
 
-                if (!notesRichTextArea.getValue().equals(GlobalConstants.emptyString))
+                if (!notesTextArea.getValue().equals(GlobalConstants.emptyString))
                 {
-                    inputJson.put("notes", notesRichTextArea.getValue());
+                    inputJson.put("notes", notesTextArea.getValue());
                 } else {
                     inputJson.put("notes", "no data");
                 }
 
-                if (!otherNotesRichTextArea.getValue().equals(GlobalConstants.emptyString)) {
-                    inputJson.put("othernotes", otherNotesRichTextArea.getValue());
+                if (!otherNotesTextArea.getValue().equals(GlobalConstants.emptyString)) {
+                    inputJson.put("othernotes", otherNotesTextArea.getValue());
                 } else {
                     inputJson.put("othernotes", "no data");
                 }
 
-                if (!previousQuestionsRichTextArea.getValue().equals(GlobalConstants.emptyString)) {
-                    inputJson.put("pq", previousQuestionsRichTextArea.getValue());
+                if (!previousQuestionsTextArea.getValue().equals(GlobalConstants.emptyString)) {
+                    inputJson.put("pq", previousQuestionsTextArea.getValue());
                 } else {
                     inputJson.put("pq", "no data");
                 }
 
+                System.out.println("isNewQuickUpload="+isNewQuickUpload);
+                System.out.println("uploadId="+uploadId);
+                
                 if (isNewQuickUpload) {
                     inputJson.put("uploadId", "null");
                 } else {
@@ -707,9 +720,93 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
              isNewQuickUpload=false;
              buildAndDisplaySelectedTopicInformation();
         }
-        else if(property==txtVideoPath || property==notesRichTextArea || property==otherNotesRichTextArea || property==previousQuestionsRichTextArea)
+        else if(property==txtVideoPath || property==notesTextArea || property==otherNotesTextArea || property==previousQuestionsTextArea)
         {
             savebtn.setVisible(true);
         }
     }
+     
+     public void addListenertoBtn(Button btnRemove) 
+    {
+
+        btnRemove.addListener(new Button.ClickListener() 
+        {
+
+            public void buttonClick(final Button.ClickEvent event) 
+            {
+                //UI.getCurrent().addWindow(new ConfirmationDialogueBox());
+                
+                UI.getCurrent().addWindow(new ConfirmationDialogueBox("Confirmation", "Are you sure you want to delete this file ?", new ConfirmationDialogueBox.Callback() {
+
+                    @Override
+                    public void onDialogResult(boolean flag) 
+                    {
+                        if(flag)
+                        {
+                            Object data[] = (Object[]) event.getButton().getData();
+                            QuickUploadTable t = (QuickUploadTable) data[0];
+//                            String fileStr=sourcePath+t.getItem(data[1]).getItemProperty("Name")+"."+t.getItem(data[1]).getItemProperty("Type");
+//                            File file=new File(fileStr);
+//                            if (file.exists())
+//                            {
+//                                file.delete();
+//                            } 
+                            System.out.println("****"+((MasteParmBean)data[1]));
+                            deleteTopicInformationFromDB((MasteParmBean)data[1]);
+                            t.removeItem(data[1]);
+//                            getWindow().showNotification("File is deleted");
+                        }
+                           
+                    }
+
+                    
+                }));
+                
+                //UI.getCurrent().addWindow(new Window("Hello"));
+            }
+        });
+    }
+     
+     //get upload id from bean and pass it to service 
+     // service will delete it from db
+     private void deleteTopicInformationFromDB(MasteParmBean masteParmBean) 
+     {
+         List<MasteParmBean>list =null;
+          try 
+          {
+            Client client = Client.create();
+            WebResource webResource = client.resource(GlobalConstants.getProperty(GlobalConstants.DELETE_TOPIC_BY_UPLOAD_ID));
+            //String input = "{\"userName\":\"raj\",\"password\":\"FadeToBlack\"}";
+            JSONObject inputJson = new JSONObject();
+            
+            inputJson.put("uploadId", masteParmBean.getUploadId());
+
+            ClientResponse response = webResource.type("application/json").post(ClientResponse.class, inputJson);
+          
+            JSONObject outNObject = null;
+            String output = response.getEntity(String.class);
+            outNObject = new JSONObject(output);
+            System.out.println("ou########tNObject="+outNObject.getString(GlobalConstants.STATUS));
+            int status = Integer.parseInt(outNObject.getString(GlobalConstants.STATUS));
+            
+            if(status == GlobalConstants.YES)
+            {
+                Notification.show("Successfully deleted topic information", Notification.Type.WARNING_MESSAGE);
+            }
+            else
+            {
+                Notification.show("Topic deletion failed", Notification.Type.WARNING_MESSAGE);
+            }
+//            Type listType = new TypeToken<ArrayList<MasteParmBean>>() {
+//            }.getType();
+//            Gson gson=  new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").create();
+//            list= gson.fromJson(outNObject.getString(GlobalConstants.QUICKLEARNLIST), listType);
+            
+        } catch (JSONException ex) 
+        {
+            ex.printStackTrace();
+        }
+         
+                        
+     }
 }
