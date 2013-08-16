@@ -75,6 +75,7 @@ public class GlobalConstants
    public static final String QUICK_LEARN_UPLOAD_LIST_URL="QUICK_LEARN_UPLOAD_LIST_URL";
    public static final String SAVE_UPLOAD_DETAILS_URL="SAVE_UPLOAD_DETAILS_URL";
    public static final String GET_QUICK_LEARN_BY_UPLOAD_ID="GET_QUICK_LEARN_BY_UPLOAD_ID";
+   public static final String DELETE_TOPIC_BY_UPLOAD_ID="DELETE_TOPIC_BY_UPLOAD_ID";
     
     static
     {
