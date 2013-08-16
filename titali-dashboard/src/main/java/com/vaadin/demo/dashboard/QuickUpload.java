@@ -771,7 +771,6 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
      // service will delete it from db
      private void deleteTopicInformationFromDB(MasteParmBean masteParmBean) 
      {
-         List<MasteParmBean>list =null;
           try 
           {
             Client client = Client.create();
@@ -804,6 +803,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
             
         } catch (JSONException ex) 
         {
+            Notification.show("Topic deletion failed", Notification.Type.WARNING_MESSAGE);
             ex.printStackTrace();
         }
          
