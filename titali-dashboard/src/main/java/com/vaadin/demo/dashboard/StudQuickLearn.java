@@ -23,6 +23,7 @@ import com.quick.utilities.UIUtils;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.FieldEvents;
 import com.vaadin.event.FieldEvents.BlurEvent;
@@ -36,6 +37,7 @@ import com.vaadin.ui.*;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.codehaus.jettison.json.JSONException;
@@ -57,7 +59,7 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
     VerticalLayout column = new VerticalLayout();
     QuickLearn studQuikLearnDetails;
     ComboBox cbSubject = new ComboBox();
-
+    private int uploadIdToNavigate;
 
     public String getUserNotes() {
         return userNotes;
@@ -87,16 +89,46 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
         this.selectedSub = selectedSub;
     }
 
-    
-    
-    
+
     
     
     @Override
     public void enter(ViewChangeEvent event) {
         setSizeFull();
         addStyleName("schedule");
+        
+        //below steps are done for selected the upload item topic 
+        //on which the user has clicked from dashboard - whats new table
+        
+        //getting the uploadIdToNavigate
+        uploadIdToNavigate = Integer.parseInt(GlobalConstants.emptyString+getSession().getAttribute("uploadIdToNavigate"));
+        
+        //if it is not zero then navigate to it otherwise first item of the topic table gets selected
+        if(uploadIdToNavigate!=0){
+             setSelectedTableRecord();
+        }
+       
+        
     }
+    
+    
+    /**
+     * this method is used to select the item on upload table for which user has asked from dashboard whats new table
+     */
+     private void setSelectedTableRecord() {
+         
+         Iterator it  = quickLearnTable.getItemIds().iterator();
+              while(it.hasNext()){
+                  Object itemId = it.next();
+                   Item i =  quickLearnTable.getItem(itemId);
+                   int uploadId = Integer.parseInt(i.getItemProperty("uploadId").getValue().toString());
+                   if(uploadId==uploadIdToNavigate){
+                       quickLearnTable.select(itemId);
+                       break;
+                   }
+              }  
+         
+      }
     
     public StudQuickLearn()
     {
@@ -228,11 +260,18 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
             }
         });
         
-        cbSubject.setValue(stdlist.get(0).getSub());
-        quickLearnTable.select(quickLearnTable.firstItemId());
+            cbSubject.setValue(stdlist.get(0).getSub());
             
+            if (uploadIdToNavigate == 0) {
+                quickLearnTable.select(quickLearnTable.firstItemId());
+            } else {
+               
+                quickLearnTable.select(quickLearnTable.getData());
+            }
+
+
         }
-        
+
        
         
        
@@ -301,10 +340,10 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
     public void valueChange(ValueChangeEvent event) {
        Property property=event.getProperty();
         if(property==quickLearnTable){           
-            Set<MasteParmBean> topic=(Set<MasteParmBean>) property.getValue();
-            for(MasteParmBean u:topic){
-               uploadId = u.getUploadId();  
-            }            
+            MasteParmBean topic=(MasteParmBean) property.getValue();
+            
+               uploadId = topic.getUploadId();  
+                        
              setStudQuikLearnDetails(getStudentQuickLearnDetails());
              updateQuickLearnTabSheet();
              notes.setValue(getUserNotes());
@@ -607,4 +646,6 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
         }
         
     }   
+
+   
 }

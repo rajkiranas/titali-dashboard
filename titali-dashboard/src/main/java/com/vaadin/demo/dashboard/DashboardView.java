@@ -13,6 +13,7 @@ package com.vaadin.demo.dashboard;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.quick.bean.MasteParmBean;
+import com.quick.bean.MyDashBoardBean;
 import com.quick.bean.Userprofile;
 import com.quick.entity.Notices;
 import com.quick.entity.Whatsnew;
@@ -27,6 +28,7 @@ import java.text.DecimalFormat;
 import com.vaadin.data.Property;
 import com.quick.data.DataProvider;
 import com.quick.data.Generator;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.event.ShortcutAction.KeyCode;
@@ -54,18 +56,20 @@ import com.vaadin.ui.Window;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-public class DashboardView extends VerticalLayout implements View {
+public class DashboardView extends VerticalLayout implements View, Property.ValueChangeListener {
 
     Table t;
     MyDashBoardDataProvider boardDataProvider = new MyDashBoardDataProvider();
     private  List<Whatsnew> whatsnewsList;
     private  List<MasteParmBean> whoisdoingwhats;
     private  List<Notices> noticeses;
+    private  Table whatsNewTable;
     
     
     
@@ -242,8 +246,8 @@ public class DashboardView extends VerticalLayout implements View {
         row.setSpacing(true);
         addComponent(row);
         setExpandRatio(row, 1.5f);
-
-        row.addComponent(createPanel(boardDataProvider.getWhatsNewForme(whatsnewsList)));
+        whatsNewTable = boardDataProvider.getWhatsNewForme(whatsnewsList,this);
+        row.addComponent(createPanel(whatsNewTable));
 
         /* TextArea notes = new TextArea("Notes");
         notes.setValue("Remember to:\n· Zoom in and out in the Sales view\n· Filter the transactions and drag a set of them to the Reports tab\n· Create a new report\n· Change the schedule of the movie theater");
@@ -373,6 +377,34 @@ public class DashboardView extends VerticalLayout implements View {
             ex.printStackTrace();
         }
 
+    }
+
+    /**
+     * below method gets called when student clicks on any of the whats new item
+     * further the control gets transfer to the quick learn screen
+     * which shows the selected item
+     * necessary data to show the selected item is set from this method
+     * @param event 
+     */
+    
+    
+    @Override
+    public void valueChange(ValueChangeEvent event) {
+        Property property =event.getProperty();
+        if(property==whatsNewTable){
+             MyDashBoardBean whatsnewItem= (MyDashBoardBean)property.getValue();
+             navigateToQuickLearnTopic(whatsnewItem.getItemid());
+        }
+    }
+
+    /**
+     * this method sets required parameters to set the selected topic on quick learn screen
+     * after setting this details it uses ui navigator to navigate the control to quick learn screen
+     */
+    private void navigateToQuickLearnTopic(String itemid) {
+        getSession().setAttribute("uploadIdToNavigate", itemid);
+        getUI().getNavigator().navigateTo("/learn");
+        
     }
 
 }
