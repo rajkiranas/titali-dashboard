@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.quick.bean.MasteParmBean;
 import com.quick.bean.QuickLearn;
+import com.quick.bean.Userprofile;
 import com.quick.container.StudQuickLearnContainer;
 import com.vaadin.data.Property;
 import com.quick.data.Generator;
@@ -18,6 +19,7 @@ import com.quick.ui.QuickLearn.MyNotes;
 import com.quick.ui.QuickLearn.MyOtherNotes;
 import com.quick.ui.QuickLearn.MyVideo;
 import com.quick.ui.QuickLearn.PreviousQuestion;
+import com.quick.utilities.UIUtils;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -27,9 +29,11 @@ import com.vaadin.event.FieldEvents.BlurEvent;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.FileResource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +56,8 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
     private String userNotes;
     VerticalLayout column = new VerticalLayout();
     QuickLearn studQuikLearnDetails;
+    ComboBox cbSubject = new ComboBox();
+
 
     public String getUserNotes() {
         return userNotes;
@@ -92,20 +98,35 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
         addStyleName("schedule");
     }
     
-    public StudQuickLearn(){
+    public StudQuickLearn()
+    {
         getStandardList();
         HorizontalLayout top = new HorizontalLayout();
         top.setWidth("100%");
         top.setSpacing(true);
+        top.setMargin(new MarginInfo(true, true, false, true));
         top.addStyleName("toolbar");
         addComponent(top);
-        final Label title = new Label("My Dashboard");
+        final Label title = new Label("Learn now");
         title.setSizeUndefined();
         title.addStyleName("h1");
         top.addComponent(title);
         top.setComponentAlignment(title, Alignment.MIDDLE_LEFT);
         top.setExpandRatio(title, 1);
 
+        //top.addComponent();
+        HorizontalLayout h = new HorizontalLayout();
+        Label lblSubject =new Label("Subject");
+        
+        h.addComponent(lblSubject);
+        h.setComponentAlignment(lblSubject,Alignment.MIDDLE_LEFT);
+        h.addComponent(cbSubject);
+        h.setComponentAlignment(cbSubject,Alignment.MIDDLE_RIGHT);
+        h.setSpacing(true);
+        h.setMargin(true);
+        
+        top.addComponent(h);
+        top.setComponentAlignment(h, Alignment.MIDDLE_RIGHT);
       
         HorizontalLayout row = new HorizontalLayout();
         row.setSizeFull();
@@ -113,9 +134,10 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
         row.setSpacing(true);
         addComponent(row);
         setExpandRatio(row, 1.5f);
+        Component c=buildTabSheetLayout();
         row.addComponent(CreateFirstPaneview());
         //row.addComponent(createPanel(boardDataProvider.getWhatsNewForme(whatsnewsList)));
-        row.addComponent(buildTabSheetLayout());
+        row.addComponent(c);
 
     }
 
@@ -179,18 +201,23 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
     }
 
     private Component CreateFirstPaneview() {
-       
+        
+        quickLearnTable = new StudQuickLearnTable(this);
+        notes = new TextArea("My short notes for this topic");
+        
         column.setSpacing(true);
-        ComboBox subject = new ComboBox();
-        subject.setInputPrompt("subject");
-        subject.setImmediate(true);
-        for(MasteParmBean mpb:stdlist){
-            subject.addItem(mpb.getSub());
-        }
+        cbSubject.setInputPrompt("subject");
+        cbSubject.setImmediate(true);
         
-        
-        subject.addValueChangeListener(new Property.ValueChangeListener() {
+         if (stdlist!=null && !stdlist.isEmpty()) {
+            for (MasteParmBean mpb : stdlist) {
+                cbSubject.addItem(mpb.getSub());
+            }
+            
+            
+             cbSubject.addValueChangeListener(new Property.ValueChangeListener() {
 
+            
             @Override
             public void valueChange(ValueChangeEvent event) {
                 setSelectedSub(""+event.getProperty().getValue());
@@ -200,18 +227,27 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
                 
             }
         });
-        column.addComponent(subject);
-        column.setExpandRatio(subject, 1);
+        
+        cbSubject.setValue(stdlist.get(0).getSub());
+        quickLearnTable.select(quickLearnTable.firstItemId());
+            
+        }
+        
+       
+        
+       
+        /* column.addComponent(subject);
+        column.setExpandRatio(subject, 1); */
 //        column.addComponent(new TopGrossingMoviesChart());
         // 
         
-          quickLearnTable = new StudQuickLearnTable(this);
+          
           column.addComponent(quickLearnTable);
-          column.setExpandRatio(quickLearnTable,1.5f);
+          column.setExpandRatio(quickLearnTable,1);
             
       
         
-        notes = new TextArea("My short notes/feedback");
+        
         notes.setSizeFull();
         notes.setInputPrompt("My short notes");
         
@@ -225,7 +261,7 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
             }
         });
         column.addComponent(notes);
-        column.setExpandRatio(notes, 0.7f);
+        column.setExpandRatio(notes, 0.5f);
         return column;
        
     }
@@ -264,7 +300,7 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
        @Override
     public void valueChange(ValueChangeEvent event) {
        Property property=event.getProperty();
-        if(property==quickLearnTable){            
+        if(property==quickLearnTable){           
             Set<MasteParmBean> topic=(Set<MasteParmBean>) property.getValue();
             for(MasteParmBean u:topic){
                uploadId = u.getUploadId();  
@@ -278,13 +314,162 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
        
        
         private void updateQuickLearnTabSheet() {
-           editors.removeAllComponents();
-           editors.addTab(new DashBoardVideoPlayer(),"Video");
-           editors.addTab(new MyNotes(getStudQuikLearnDetails()), "Notes");
-           editors.addTab(new MyOtherNotes(getStudQuikLearnDetails()), "OtherNotes");
-           editors.addTab(new PreviousQuestion(getStudQuikLearnDetails()), "Previous Questions");
+//           editors.removeAllComponents();
+           //editors.addTab(new DashBoardVideoPlayer(),"Video");
+//           editors.addTab(new MyNotes(getStudQuikLearnDetails()), "Notes");
+//           editors.addTab(new MyOtherNotes(getStudQuikLearnDetails()), "OtherNotes");
+//           editors.addTab(new PreviousQuestion(getStudQuikLearnDetails()), "Previous Questions");
+//           
+           buildTabSheetLayout(getStudQuikLearnDetails().getVideoPath(),getStudQuikLearnDetails().getLectureNotes(),getStudQuikLearnDetails().getOtherNotes(),getStudQuikLearnDetails().getPreviousQuestion());
 
       }
+        
+        /////////////////////////////////////////////////
+        private VerticalLayout buildTabSheetLayout(String videoPath, String notes, String otherNotes, String previousQuestions) {
+//        VerticalLayout mainVertical=new VerticalLayout();
+//        
+           editors.removeAllComponents();
+           editors.setSizeFull();
+           //player = new DashBoardVideoPlayer();
+           editors.addTab(getVideoPathLayout(videoPath),"Video");
+           editors.addTab(getNotesLayout(notes), "Notes");
+           editors.addTab(getOtherNotesLayout(otherNotes), "Other Notes");
+           editors.addTab(getPreviousQuestionsLayout(previousQuestions), "Previous Questions");
+//           CssLayout cssTabsheetLayout = UIUtils.createPanel(editors);
+//           
+//           mainVertical.addComponent(cssTabsheetLayout);
+//           mainVertical.setExpandRatio(cssTabsheetLayout, 2);
+//           mainVertical.setWidth("100%");
+//           mainVertical.setHeight("97%");
+           
+           //CssLayout aboutLearnLayout =  UIUtils.createPanel(buildTopicDetailsLayout());
+           //aboutLearnLayout.setCaption("Topic Information");
+           
+//           mainVertical.addComponent(aboutLearnLayout);
+//           mainVertical.setExpandRatio(aboutLearnLayout, 1);
+           return null;
+    }
+    
+
+    private Label lableNoVideo;
+    private Video vPlayer;
+
+    private VerticalLayout getVideoPathLayout(String videoPath) {
+       VerticalLayout layout= new VerticalLayout();
+       layout.setSpacing(true);
+       layout.setSizeFull();
+       
+       if(videoPath!=null)
+       {
+           // video is available, show it on video player
+           vPlayer = new Video();
+           vPlayer.setImmediate(true);
+           vPlayer.setWidth("100%");
+           vPlayer.setHeight("100%");
+           vPlayer.addSource(new FileResource(new File(videoPath)));
+           //vPlayer.addSource(new ExternalResource("file:/"+videoPath));
+           layout.addComponent(vPlayer);
+           layout.setComponentAlignment(vPlayer, Alignment.MIDDLE_CENTER);
+           
+           
+       }
+       else
+       {
+         // not video available, accept path from user
+         lableNoVideo=new Label("<b><h3>No video available for this topic.</h3></b>", ContentMode.HTML);
+         lableNoVideo.setImmediate(true);
+         //txtVideoPath.setInputPrompt("Enter server video path");
+         lableNoVideo.setCaption("About Video");
+         lableNoVideo.setWidth("90%");
+         //txtVideoPath.addValueChangeListener(this);
+         layout.addComponent(lableNoVideo);
+         layout.setComponentAlignment(lableNoVideo, Alignment.MIDDLE_CENTER);
+         
+       }
+       
+       return layout;
+    }
+    
+    private TextArea notesTextArea;
+    
+    private VerticalLayout getNotesLayout(String strNotes) {
+        VerticalLayout layout= new VerticalLayout();
+        layout.setSizeFull();
+        layout.setSpacing(true);
+        layout.setMargin(true);
+        
+        notesTextArea = new TextArea();
+        
+        notesTextArea.setSizeFull();
+        if(strNotes!=null)
+        {
+            notesTextArea.setValue(strNotes);
+        }
+        
+        notesTextArea.setImmediate(true);
+        notesTextArea.addValueChangeListener(this);
+        notesTextArea.setReadOnly(true);
+        
+        layout.addComponent(notesTextArea);
+        layout.setExpandRatio(notesTextArea, 2);
+        
+        return layout;
+        
+    }
+    
+    private TextArea otherNotesTextArea;
+    
+    private VerticalLayout getOtherNotesLayout(String otherNotes) {
+        VerticalLayout layout= new VerticalLayout();
+        layout.setSizeFull();
+        layout.setSpacing(true);
+        layout.setMargin(true);
+        
+        otherNotesTextArea = new TextArea();
+        
+        otherNotesTextArea.setSizeFull();
+        if(otherNotes!=null)
+        {
+            otherNotesTextArea.setValue(otherNotes);
+        }
+        
+        otherNotesTextArea.setImmediate(true);
+        otherNotesTextArea.addValueChangeListener(this);
+        otherNotesTextArea.setReadOnly(true);
+        
+        layout.addComponent(otherNotesTextArea);
+        layout.setExpandRatio(otherNotesTextArea, 2);
+        
+        return layout;
+        
+    }
+    
+    private TextArea previousQuestionsTextArea;
+    private VerticalLayout getPreviousQuestionsLayout(String previousQuestions) {
+        VerticalLayout layout= new VerticalLayout();
+        layout.setSizeFull();
+        layout.setSpacing(true);
+        layout.setMargin(true);
+        
+        previousQuestionsTextArea = new TextArea();
+        
+        previousQuestionsTextArea.setSizeFull();
+        if(previousQuestions!=null)
+        {
+            previousQuestionsTextArea.setValue(previousQuestions);
+        }
+        
+        previousQuestionsTextArea.setImmediate(true);
+        previousQuestionsTextArea.addValueChangeListener(this);
+        previousQuestionsTextArea.setReadOnly(true);
+        
+        layout.addComponent(previousQuestionsTextArea);
+        layout.setExpandRatio(previousQuestionsTextArea, 2);
+        
+        return layout;
+        
+    }
+        ////////////////////////////////////////////////
 
            
     
@@ -298,8 +483,8 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
             //String input = "{\"userName\":\"raj\",\"password\":\"FadeToBlack\"}";
             JSONObject inputJson = new JSONObject();
             try {
-                inputJson.put("standard", "I");
-                inputJson.put("division", "A-1");
+                inputJson.put("standard", "MCA-I");
+                inputJson.put("division", "A");
             } catch (JSONException ex) {
                 ex.printStackTrace();
             }
@@ -349,6 +534,7 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
             list= new Gson().fromJson(outNObject.getString(GlobalConstants.WHATSNEW), listType);
             
         } catch (JSONException ex) {
+            ex.printStackTrace();
         }
           return list;
     }
@@ -402,7 +588,8 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
             try {
                 inputJson.put("uploadId", uploadId);
                 inputJson.put("userNotes", getUserNotes());
-                inputJson.put("userName", getSession().getAttribute("UserName"));
+                Userprofile loggedinProfile= (Userprofile)getSession().getAttribute(GlobalConstants.CurrentUserProfile);
+                inputJson.put("userName", loggedinProfile.getUsername());
                 
               
             } catch (JSONException ex) {

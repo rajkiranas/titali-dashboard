@@ -95,8 +95,7 @@ public class MyDashBoardContainer extends BeanItemContainer<MyDashBoardBean> {
        return boardContainer;
         
     }
-      
-      
+
       
        public static MyDashBoardContainer getWhoIsDoingWhatContainer(List<MasteParmBean>whoisdoingwhats) {
        MyDashBoardContainer boardContainer=null;
@@ -117,9 +116,6 @@ public class MyDashBoardContainer extends BeanItemContainer<MyDashBoardBean> {
        }catch(Exception ex){
            ex.printStackTrace();
        }
-       
-       
-       
        return boardContainer;
         
     }
