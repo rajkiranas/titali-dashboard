@@ -9,6 +9,8 @@ import com.quick.entity.Notices;
 import com.quick.entity.Whatsnew;
 import com.quick.entity.Whoisdoingwhat;
 import com.quick.data.MyDashBoardContainer;
+import com.vaadin.data.Property;
+import com.vaadin.demo.dashboard.DashboardView;
 import com.vaadin.ui.Table;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class MyDashBoardDataProvider {
         
     }
     
-    public Table getWhatsNewForme(List<Whatsnew>whatsnews){
+    public Table getWhatsNewForme(List<Whatsnew>whatsnews,DashboardView dashBoardView){
         
         Table t =new Table();
         t.setCaption("Whats New");
@@ -31,8 +33,8 @@ public class MyDashBoardDataProvider {
         t.setSortEnabled(false);
         t.setWidth("100%");
         t.setPageLength(0);
-        t.setSelectable(false);
-        t.setMultiSelect(true);
+        t.setSelectable(true);
+        t.addValueChangeListener((Property.ValueChangeListener)dashBoardView);
         t.setImmediate(true); // react at once when something is selected
         t.setContainerDataSource(MyDashBoardContainer.getWhatsNewForMeContainer(whatsnews));
         t.setVisibleColumns(MyDashBoardContainer.NATURAL_COL_ORDER_WHATS_NEW);

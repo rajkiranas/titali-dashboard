@@ -41,6 +41,7 @@ public class QuickUploadTable extends Table {
         addValueChangeListener((Property.ValueChangeListener) quickUpload);
 
         setValue(firstItemId());
+        
         addGeneratedColumn("Remove", new Table.ColumnGenerator() 
             {
             @Override

@@ -62,6 +62,7 @@ public class MyDashBoardContainer extends BeanItemContainer<MyDashBoardBean> {
            for(Whatsnew w:whatsnews){
                  bean=new MyDashBoardBean();
                  bean.setNotification(w.getDisplaynotification());
+                 bean.setItemid(String.valueOf(w.getItemid()));
                  boardContainer.addItem(bean);
            }
        }catch(Exception ex){

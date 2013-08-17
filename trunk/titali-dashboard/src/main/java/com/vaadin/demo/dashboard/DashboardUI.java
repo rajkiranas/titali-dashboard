@@ -84,6 +84,7 @@ public class DashboardUI extends UI{
 
     CssLayout menu = new CssLayout();
     CssLayout content = new CssLayout();
+  
 
     HashMap<String, Class<? extends View>> routes = new HashMap<String, Class<? extends View>>() {
         {
