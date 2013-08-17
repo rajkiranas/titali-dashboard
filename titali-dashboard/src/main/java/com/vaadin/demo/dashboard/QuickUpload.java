@@ -737,6 +737,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
       * */
      public void addListenertoBtn(Button btnRemove) 
     {
+        
         btnRemove.addListener(new Button.ClickListener() 
         {
             public void buttonClick(final Button.ClickEvent event) 
@@ -758,12 +759,21 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                             
                             deleteTopicInformationFromDB((MasteParmBean)data[1]);
                             
+                            // temporary removing value change listener of the quick upload table so that after removing item it will not attempt to display that particular item
+                            t.removeValueChangeListener(QuickUpload.this);
+        
                             t.removeItem(data[1]);
+                            
+                            //restoring the value change listener so that selected uploaded item will be displayed in the right panel
+                            t.addValueChangeListener(QuickUpload.this);
+                            t.select(t.firstItemId());
                         }
                     }
                 }));
             }
         });
+        
+        
     }
      
      //get upload id from bean and pass it to service 
