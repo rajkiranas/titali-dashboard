@@ -200,9 +200,11 @@ public class DashboardUI extends UI{
         final TextField username = new TextField(strUsername);
         username.focus();
         fields.addComponent(username);
+        username.setValue("sonali");
 
         final PasswordField password = new PasswordField(strPassword);
         fields.addComponent(password);
+        password.setValue("sonali");
 
         final Button signin = new Button(strSignIn);
         signin.addStyleName(defaultStyle);

@@ -18,7 +18,7 @@ public class StudQuickLearnTable extends Table {
     
     public StudQuickLearnTable(StudQuickLearn quickLearn){
         
-        setCaption("Whats New");
+        ///setCaption("Whats New");
         //setSizeFull();
       //  addStyleName("plain");
         addStyleName("borderless");

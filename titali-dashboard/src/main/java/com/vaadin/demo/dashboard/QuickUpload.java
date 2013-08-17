@@ -415,7 +415,6 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                 }
                 else
                 {
-                    
                     //video player exists, no need to update video path
                     //String dummyEmptyString=GlobalConstants.emptyString;
                     inputJson.put("video_path", getQuikLearnMasterParamDetails().getVideoPath());
@@ -441,8 +440,10 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                     inputJson.put("pq", "no data");
                 }
 
-                System.out.println("isNewQuickUpload="+isNewQuickUpload);
-                System.out.println("uploadId="+uploadId);
+                System.out.println("***** isNewQuickUpload="+isNewQuickUpload);
+                System.out.println("***** uploadId="+uploadId);
+                
+                inputJson.put("isNewQuickUpload", isNewQuickUpload);
                 
                 if (isNewQuickUpload) {
                     inputJson.put("uploadId", "null");
@@ -511,6 +512,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
       /* quickUploadTable.setContainerDataSource(QuickUploadMasterContainer.getQuickLearnUploadList(getUploadedList()));
       quickUploadTable.setVisibleColumns(QuickUploadMasterContainer.NATURAL_COL_ORDER_QUICKUPLOAD_INFO);
       quickUploadTable.setColumnHeaders(QuickUploadMasterContainer.COL_HEADERS_ENGLISH_QUICKUPLOAD_INFO); */
+        setUploadedList(MasterDataProvider.getQuickLearnUploadList());
         quickUploadTable=new QuickUploadTable(this);
        row.addComponent(UIUtils.createPanel(quickUploadTable));
       // show the first value selected in the table
@@ -681,6 +683,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
     public void buttonClick(ClickEvent event) {
         final Button source = event.getButton();
         if (source == newbtn) {
+            isNewQuickUpload=true;
             newbtn.setVisible(false);
             savebtn.setVisible(true);
             cancelbtn.setVisible(true);
@@ -694,6 +697,8 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
             {
                 
                 validateAndSaveQuickUploadDetails();
+                isNewQuickUpload=false;
+               
                 //removeTabsheetLayout();
                 
             } catch (Exception ex) {
@@ -701,6 +706,7 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                 Notification.show("Saved failed", Notification.Type.WARNING_MESSAGE);
             }
         } else if (source == cancelbtn) {
+            isNewQuickUpload=false;
             newbtn.setVisible(true);
             savebtn.setVisible(false);
             cancelbtn.setVisible(false);
@@ -726,17 +732,18 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
         }
     }
      
+     /**
+      * adding listener to the remove button for delete topic from upload screen
+      * */
      public void addListenertoBtn(Button btnRemove) 
     {
-
         btnRemove.addListener(new Button.ClickListener() 
         {
-
             public void buttonClick(final Button.ClickEvent event) 
             {
                 //UI.getCurrent().addWindow(new ConfirmationDialogueBox());
                 
-                UI.getCurrent().addWindow(new ConfirmationDialogueBox("Confirmation", "Are you sure you want to delete this file ?", new ConfirmationDialogueBox.Callback() {
+                UI.getCurrent().addWindow(new ConfirmationDialogueBox("Confirmation", "Are you sure you want to remove this topic ?", new ConfirmationDialogueBox.Callback() {
 
                     @Override
                     public void onDialogResult(boolean flag) 
@@ -744,25 +751,17 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
                         if(flag)
                         {
                             Object data[] = (Object[]) event.getButton().getData();
+                            
                             QuickUploadTable t = (QuickUploadTable) data[0];
-//                            String fileStr=sourcePath+t.getItem(data[1]).getItemProperty("Name")+"."+t.getItem(data[1]).getItemProperty("Type");
-//                            File file=new File(fileStr);
-//                            if (file.exists())
-//                            {
-//                                file.delete();
-//                            } 
+                            
                             System.out.println("****"+((MasteParmBean)data[1]));
+                            
                             deleteTopicInformationFromDB((MasteParmBean)data[1]);
+                            
                             t.removeItem(data[1]);
-//                            getWindow().showNotification("File is deleted");
                         }
-                           
                     }
-
-                    
                 }));
-                
-                //UI.getCurrent().addWindow(new Window("Hello"));
             }
         });
     }
@@ -796,17 +795,11 @@ public class QuickUpload extends VerticalLayout implements View,Button.ClickList
             {
                 Notification.show("Topic deletion failed", Notification.Type.WARNING_MESSAGE);
             }
-//            Type listType = new TypeToken<ArrayList<MasteParmBean>>() {
-//            }.getType();
-//            Gson gson=  new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").create();
-//            list= gson.fromJson(outNObject.getString(GlobalConstants.QUICKLEARNLIST), listType);
             
         } catch (JSONException ex) 
         {
             Notification.show("Topic deletion failed", Notification.Type.WARNING_MESSAGE);
             ex.printStackTrace();
         }
-         
-                        
      }
 }
