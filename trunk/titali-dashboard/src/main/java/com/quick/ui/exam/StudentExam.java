@@ -403,7 +403,7 @@ public class StudentExam extends VerticalLayout implements View  {
     
   
       private void startExam() {
-          throw new UnsupportedOperationException("Not yet implemented");
+         //throw new UnsupportedOperationException("Not yet implemented");
       }
     
     

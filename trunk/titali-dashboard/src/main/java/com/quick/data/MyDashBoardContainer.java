@@ -19,12 +19,14 @@ import java.util.List;
 public class MyDashBoardContainer extends BeanItemContainer<MyDashBoardBean> {
      public static final Object[] NATURAL_COL_ORDER_WHATS_NEW = new Object[]{
        "notification"};
+     //"notification","dateTime"};
         /**
         * "Human readable" captions for properties in same order as in
         * NATURAL_COL_ORDER_DAILY_CALLS.
         */
     public static final String[] COL_HEADERS_ENGLISH_WHATS_NEW = new String[]{
         "Notification's"};
+    //"Notification's","Release time"};
     
     
     
@@ -63,6 +65,7 @@ public class MyDashBoardContainer extends BeanItemContainer<MyDashBoardBean> {
                  bean=new MyDashBoardBean();
                  bean.setNotification(w.getDisplaynotification());
                  bean.setItemid(String.valueOf(w.getItemid()));
+                 bean.setDateTime(w.getReleasedate().toString());
                  boardContainer.addItem(bean);
            }
        }catch(Exception ex){

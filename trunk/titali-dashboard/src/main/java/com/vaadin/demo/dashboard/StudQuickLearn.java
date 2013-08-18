@@ -34,12 +34,16 @@ import com.vaadin.server.FileResource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
+import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
+import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -60,6 +64,9 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
     QuickLearn studQuikLearnDetails;
     ComboBox cbSubject = new ComboBox();
     private int uploadIdToNavigate;
+    private String topicForNotification;
+    private  Userprofile loggedInUserProfile = null;
+    private  SelectedTabChangeListener tabChangeListener;
 
     public String getUserNotes() {
         return userNotes;
@@ -76,6 +83,14 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
 
     public void setStudQuikLearnDetails(QuickLearn studQuikLearnDetails) {
         this.studQuikLearnDetails = studQuikLearnDetails;
+    }
+
+    public String getTopicForNotification() {
+        return topicForNotification;
+    }
+
+    public void setTopicForNotification(String topicForNotification) {
+        this.topicForNotification = topicForNotification;
     }
     
     
@@ -101,7 +116,12 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
         //on which the user has clicked from dashboard - whats new table
         
         //getting the uploadIdToNavigate
-        uploadIdToNavigate = Integer.parseInt(GlobalConstants.emptyString+getSession().getAttribute("uploadIdToNavigate"));
+         loggedInUserProfile =((Userprofile)getSession().getAttribute(GlobalConstants.CurrentUserProfile));
+        String strUploadIdToNavigate=GlobalConstants.emptyString+getSession().getAttribute("uploadIdToNavigate");
+        if(!strUploadIdToNavigate.equals("null"))
+        {
+            uploadIdToNavigate = Integer.parseInt(strUploadIdToNavigate);
+        }
         
         //if it is not zero then navigate to it otherwise first item of the topic table gets selected
         if(uploadIdToNavigate!=0){
@@ -324,6 +344,21 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
            editors.addTab(new MyNotes(), "Notes");
            editors.addTab(new MyOtherNotes(), "OtherNotes");
            editors.addTab(new PreviousQuestion(), "Previous Questions");
+            tabChangeListener = new TabSheet.SelectedTabChangeListener() {
+
+            @Override
+            public void selectedTabChange(SelectedTabChangeEvent event) {
+                 //loggedInUserProfile will be null when this quick learn screen loads
+                // and the control comes first to this tab change method before user profile gets its value in enter method
+                if(loggedInUserProfile!=null){
+                    sendWhosDoingWhatNotificationToStudents(editors.getTab(event.getTabSheet().getSelectedTab()).getCaption());
+                }
+            }
+        };
+            
+         editors.addSelectedTabChangeListener(tabChangeListener);
+           
+          
            return editors;
     }
     
@@ -339,14 +374,29 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
        @Override
     public void valueChange(ValueChangeEvent event) {
        Property property=event.getProperty();
-        if(property==quickLearnTable){           
-            MasteParmBean topic=(MasteParmBean) property.getValue();
+        if(property==quickLearnTable){  
             
-               uploadId = topic.getUploadId();  
-                        
+            MasteParmBean selectedTopicRow=(MasteParmBean) property.getValue();
+            
+             uploadId = selectedTopicRow.getUploadId();  
+             setTopicForNotification(selectedTopicRow.getTopic());         
              setStudQuikLearnDetails(getStudentQuickLearnDetails());
+             
+             //Temp removing Listner to avoid multiple notifiaction on tab change
+             
+             editors.removeSelectedTabChangeListener(tabChangeListener);
              updateQuickLearnTabSheet();
+             
+             // Restoring after Tabsheet Load
+             editors.addSelectedTabChangeListener(tabChangeListener);
              notes.setValue(getUserNotes());
+             
+              //loggedInUserProfile will be null when this quick learn screen loads
+                // and the control comes first to this tab change method before user profile gets its value in enter method
+             if(loggedInUserProfile!=null){
+                
+                    sendWhosDoingWhatNotificationToStudents(GlobalConstants.going_through);
+                }
         }
     }
    
@@ -642,10 +692,41 @@ public class StudQuickLearn extends VerticalLayout implements View,Property.Valu
             outNObject = new JSONObject(output);
             Notification.show(outNObject.getString(GlobalConstants.STATUS), Notification.Type.WARNING_MESSAGE);
             
-        } catch (JSONException ex) {
+        } catch (JSONException ex) 
+        {
+            ex.printStackTrace();
         }
         
-    }   
+    }  
+    
+    
+    private void sendWhosDoingWhatNotificationToStudents(String activity){
+        try {
+            JSONObject inputRequest = new JSONObject();
+            
+               
+                inputRequest.put("name",loggedInUserProfile.getName());
+                inputRequest.put("uploadId",uploadId);
+                inputRequest.put("doingwhat",activity);
+                inputRequest.put("div",loggedInUserProfile.getDiv());
+                inputRequest.put("std",loggedInUserProfile.getStd());
+                inputRequest.put("sub",cbSubject.getValue());
+                inputRequest.put("topic",getTopicForNotification());
+                                   
+            Client client = Client.create();
+                WebResource webResource = client.resource(GlobalConstants.getProperty(GlobalConstants.SEND_WHOS_DOING_WHAT_NOTIFICATIONS));
+                ClientResponse response = webResource.type("application/json").post(ClientResponse.class, inputRequest);
+
+                /*
+                 * if (response.getStatus() != 201) { throw new RuntimeException("Failed
+                 * : HTTP error code : " + response.getStatus()); }
+                 */
+
+                String output = response.getEntity(String.class);
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+    }
 
    
 }
