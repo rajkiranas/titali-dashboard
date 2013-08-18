@@ -11,6 +11,7 @@ public class GlobalConstants
 {
     
     
+    
 
     /** Creates a new instance of EQ_GlobalConstants */
     public GlobalConstants() {
@@ -59,6 +60,7 @@ public class GlobalConstants
     public static final String toolbar_style = "toolbar";
     public static final String h1_style = "h1";
     public static final String default_style = "default";
+    public static final String going_through="going through";
     
     
     
@@ -76,6 +78,7 @@ public class GlobalConstants
    public static final String SAVE_UPLOAD_DETAILS_URL="SAVE_UPLOAD_DETAILS_URL";
    public static final String GET_QUICK_LEARN_BY_UPLOAD_ID="GET_QUICK_LEARN_BY_UPLOAD_ID";
    public static final String DELETE_TOPIC_BY_UPLOAD_ID="DELETE_TOPIC_BY_UPLOAD_ID";
+   public static final String SEND_WHOS_DOING_WHAT_NOTIFICATIONS="SEND_WHOS_DOING_WHAT_NOTIFICATIONS";
     
     static
     {
