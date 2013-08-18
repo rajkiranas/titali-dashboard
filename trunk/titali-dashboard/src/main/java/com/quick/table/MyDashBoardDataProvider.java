@@ -60,7 +60,7 @@ public class MyDashBoardDataProvider {
         t.setColumnHeaders(MyDashBoardContainer.COL_HEADERS_ENGLISH__NOtice);
         return t;
     }
-    public Table getWhoIsDoingWhat(List<MasteParmBean>whoisdoingwhats){
+    public Table getWhoIsDoingWhat(List<MasteParmBean>whoisdoingwhats,DashboardView dashBoardView){
         
         Table t =new Table();
         t.setCaption("Who's doing what");
@@ -70,13 +70,16 @@ public class MyDashBoardDataProvider {
          t.setPageLength(0);
         //t.setRowHeaderMode(Table.RowHeaderMode.INDEX);
         t.setWidth("100%");
-        t.setSelectable(false);
+        t.setSelectable(true);
         
-        t.setMultiSelect(true);
+        t.setMultiSelect(false);
         t.setImmediate(true); // react at once when something is selected
         t.setContainerDataSource(MyDashBoardContainer.getWhoIsDoingWhatContainer(whoisdoingwhats));
         t.setVisibleColumns(MyDashBoardContainer.NATURAL_COL_ORDER_Activity);
         t.setColumnHeaders(MyDashBoardContainer.COL_HEADERS_ENGLISH_Activity);
+        
+        t.addValueChangeListener((Property.ValueChangeListener)dashBoardView);
+        
         return t;
     }
 }

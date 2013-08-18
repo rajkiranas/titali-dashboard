@@ -67,9 +67,10 @@ public class DashboardView extends VerticalLayout implements View, Property.Valu
     Table t;
     MyDashBoardDataProvider boardDataProvider = new MyDashBoardDataProvider();
     private  List<Whatsnew> whatsnewsList;
-    private  List<MasteParmBean> whoisdoingwhats;
+    private  List<MasteParmBean> whosDoingWhatFromDB;
     private  List<Notices> noticeses;
     private  Table whatsNewTable;
+    private  Table whosDoingWhatTable;
     
     
     
@@ -290,7 +291,8 @@ public class DashboardView extends VerticalLayout implements View, Property.Valu
         t.setColumnAlignment("Revenue", Align.RIGHT);
         t.setRowHeaderMode(RowHeaderMode.INDEX); */
 
-        row.addComponent(createPanel(boardDataProvider.getWhoIsDoingWhat(whoisdoingwhats)));
+        whosDoingWhatTable=boardDataProvider.getWhoIsDoingWhat(whosDoingWhatFromDB,this);
+        row.addComponent(createPanel(whosDoingWhatTable));
 
         //row.addComponent(createPanel(new TopSixTheatersChart()));
         row.addComponent(createPanel(new Label("My performance comes here")));
@@ -362,7 +364,7 @@ public class DashboardView extends VerticalLayout implements View, Property.Valu
              Type listType1 = new TypeToken<ArrayList<MasteParmBean>>() {
             }.getType();
             
-            whoisdoingwhats = new Gson().fromJson(outNObject.getString(GlobalConstants.WHOSEDOINGWHAT), listType1);
+            whosDoingWhatFromDB = new Gson().fromJson(outNObject.getString(GlobalConstants.WHOSEDOINGWHAT), listType1);
             
             
             
@@ -395,14 +397,18 @@ public class DashboardView extends VerticalLayout implements View, Property.Valu
              MyDashBoardBean whatsnewItem= (MyDashBoardBean)property.getValue();
              navigateToQuickLearnTopic(whatsnewItem.getItemid());
         }
+        else if(property==whosDoingWhatTable){
+             MyDashBoardBean whatsnewItem= (MyDashBoardBean)property.getValue();
+             navigateToQuickLearnTopic(whatsnewItem.getUploadId());
+        }
     }
 
     /**
      * this method sets required parameters to set the selected topic on quick learn screen
      * after setting this details it uses ui navigator to navigate the control to quick learn screen
      */
-    private void navigateToQuickLearnTopic(String itemid) {
-        getSession().setAttribute("uploadIdToNavigate", itemid);
+    private void navigateToQuickLearnTopic(String quickLearnUploadId) {
+        getSession().setAttribute("uploadIdToNavigate", quickLearnUploadId);
         getUI().getNavigator().navigateTo("/learn");
         
     }

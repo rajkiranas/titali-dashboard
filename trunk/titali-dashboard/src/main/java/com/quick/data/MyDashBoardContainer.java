@@ -113,6 +113,7 @@ public class MyDashBoardContainer extends BeanItemContainer<MyDashBoardBean> {
                 bean.setBywhome(whoisdoingwhat.getByWhom());
                 bean.setTopic(whoisdoingwhat.getTopic()); */
                 bean.setNotification(whoisdoingwhat.getDisplaynotification());
+                bean.setUploadId(String.valueOf(whoisdoingwhat.getUploadId()));                
                 boardContainer.addItem(bean);
             }
            
